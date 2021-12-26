@@ -1,194 +1,374 @@
-# NetSplore Repo
+# EvalNE: A Python library for evaluating Network Embedding methods #
 
 <div id="top"></div>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
 
+[![Documentation Status](https://readthedocs.org/projects/evalne/badge/?version=latest)](https://evalne.readthedocs.io/en/latest/?badge=latest)
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/Dru-Mara/EvalNE/issues)
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Dru-Mara/EvalNE/blob/master/LICENSE)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![made-with-sphinx-doc](https://img.shields.io/badge/Made%20with-Sphinx-1f425f.svg)](https://www.sphinx-doc.org/)
 
-
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-
-
-
-<!-- PROJECT LOGO -->
-<br />
 <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-
-  <h3 align="center">Best-README-Template</h3>
-
-  <p align="center">
-    An awesome README template to jumpstart your projects!
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
-  </p>
+<a href="https://evalne.readthedocs.io/en/latest/">
+  <img src="docs/source/EvalNE-logo.jpg" alt="Logo" height="80">
+</a>
+<br />
+<a href="https://evalne.readthedocs.io/en/latest/"><strong>Read The Docs »</strong></a>
 </div>
-
-
 
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
   <ol>
     <li>
-      <a href="#about-the-project">About The Project</a>
+      <a href="#about-evalne">About EvalNE</a>
       <ul>
-        <li><a href="#built-with">Built With</a></li>
+        <li><a href="#for-methodologists">For methodologists</a></li>
+        <li><a href="#for-practitioners">For practitioners</a></li>
       </ul>
     </li>
+    <li><a href="#installation">Installation</a></li>
     <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
+      <a href="#usage">Usage</a>
+        <ul>
+          <li><a href="#as-a-command-line-tool">As a command line tool</a></li>
+          <li><a href="#as-an-api">As an API</a></li>
+          <li><a href="#output">Output</a></li>
+        </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
+    <li><a href="#citation">Citation</a></li>
   </ol>
 </details>
 
 
+## About EvalNE ##
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
+This repository provides the source code for EvalNE, an open-source Python
+library designed for assessing and comparing the performance of Network
+Embedding (NE) methods on Link Prediction (LP), Sign prediction (SP), 
+Network Reconstruction (NR) and Node Classification (NC) tasks. 
+The library intends to simplify these complex and time consuming evaluation 
+processes by providing automation and abstraction of tasks such as 
+hyper-parameter tuning and model validation, node and edge sampling, node-pair 
+embedding computation, results reporting and data visualization.
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+The library can be used both as a command line tool and an API. In its current 
+version, EvalNE can evaluate unweighted directed and undirected simple networks.
 
-There are many great README templates available on GitHub; however, I didn't find one that really suited my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
+The library is maintained by Alexandru Mara (alexandru.mara(at)ugent.be). The full
+documentation of EvalNE is hosted by *Read the Docs* and can be found 
+[here](https://evalne.readthedocs.io/en/latest/).
 
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
+#### For Methodologists ####
+A command line interface in combination with a configuration file (describing datasets, 
+methods and evaluation setup) allows the user to evaluate any embedding method and compare 
+it to the state of the art or replicate the experimental setup of existing papers without 
+the need to write additional code. EvalNE does not provide implementations of any NE methods
+but offers the necessary environment to evaluate any off-the-shelf algorithm. 
+Implementations of NE methods can be obtained from libraries 
+such as 
+[OpenNE](https://github.com/thunlp/OpenNE) or
+[GEM](https://github.com/palash1992/GEM) 
+as well as directly from the web pages of the authors e.g. 
+[Deepwalk](https://github.com/phanein/deepwalk),
+[Node2vec](https://github.com/aditya-grover/node2vec),
+[LINE](https://github.com/tangjianpku/LINE),
+[PRUNE](https://github.com/ntumslab/PRUNE),
+[Metapath2vec](https://ericdongyx.github.io/metapath2vec/m2v.html),
+[CNE](https://bitbucket.org/ghentdatascience/cne/).
 
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
+EvalNE does, however, includes the following LP heuristics for both directed and
+undirected networks (in and out node neighbourhoods), which can be used as
+baselines for different downstream tasks:
 
-Use the `BLANK_README.md` to get started.
+* Random Prediction
+* Common Neighbours
+* Jaccard Coefficient
+* Adamic Adar Index
+* Preferential Attachment
+* Resource Allocation Index
+* Cosine Similarity
+* Leicht-Holme-Newman index
+* Topological Overlap
+* Katz similarity
+* All baselines (a combination of the first 5 heuristics in a 5-dim embedding)
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+#### For practitioners ####
+When used as an API, EvalNE provides functions to:
 
-
-
-### Built With
-
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
-
-* [Next.js](https://nextjs.org/)
-* [React.js](https://reactjs.org/)
-* [Vue.js](https://vuejs.org/)
-* [Angular](https://angular.io/)
-* [Svelte](https://svelte.dev/)
-* [Laravel](https://laravel.com)
-* [Bootstrap](https://getbootstrap.com)
-* [JQuery](https://jquery.com)
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
-### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
-
-### Installation
-
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
-
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/your_username_/Project-Name.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-- [x] Add Changelog
-- [x] Add back to top links
-- [ ] Add Additional Templates w/ Examples
-- [ ] Add "components" document to easily copy & paste sections of the readme
-- [ ] Multi-language Support
-    - [ ] Chinese
-    - [ ] Spanish
-
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
+* Load and preprocess graphs
+* Obtain general graph statistics
+* Conveniently read node/edge embeddings from files
+* Sample nodes/edges to form train/test/validation sets
+* Different approaches for edge sampling:
+    * Timestamp based sampling: latest nodes are used for testing
+    * Random sampling: random split of edges in train and test sets
+    * Spanning tree sampling: train set will contain a spanning tree of the graph
+    * Fast depth first search sampling: similar to spanning tree but based of DFS
+* Negative sampling or generation of non-edge pairs using:
+    * Open world assumption: train non-edges do not overlap with train edges
+    * Closed world assumption: train non-edges do not overlap with either train nor test edges
+* Evaluate LP, SP and NR for methods that output: 
+    * Node Embeddings
+    * Node-pair Embeddings
+    * Similarity scores (e.g. the ones given by LP heuristics)
+* Implements simple visualization routines for embeddings and graphs 
+* Includes NC evaluation for node embedding methods
+* Provides binary operators to compute edge embeddings from node feature vectors:
+    * Average
+    * Hadamard
+    * Weighted L1
+    * Weighted L2
+* Can use any scikit-learn classifier for LP/SP/NR/NC tasks
+* Provides routines to run command line commands or functions with a given timeout
+* Includes hyperparameter tuning based on grid search
+* Implements over 10 different evaluation metrics such as AUC, F-score, etc.
+* AUC and PR curves can be provided as output
+* Includes routines to generate tabular outputs and directly parse them to Latex tables
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
+## Instalation ## 
 
-<!-- CONTRIBUTING -->
+The library has been tested on Python 2.7 and Python 3.6.
+
+EvalNE depends on the following packages:
+* Numpy
+* Scipy
+* Scikit-learn
+* Matplotlib
+* NetworkX
+* Pandas
+* tqdm
+
+Before installing EvalNE make sure that `pip` and `python-tk` packages are installed 
+on your system, this can be done by running:
+```bash
+# Python 2
+sudo apt-get install python-pip
+sudo apt-get install python-tk
+
+# Python 3
+sudo apt-get install python3-pip
+sudo apt-get install python3-tk
+```
+
+**Option 1:** Install the library using pip:
+```bash
+# Python 2
+pip install evalne
+
+# Python 3
+pip3 install evalne
+```
+
+**Option 2:** Cloning the code and installing:
+
+- Clone the EvalNE repository:
+    ```bash
+    git clone https://github.com/Dru-Mara/EvalNE.git
+    cd EvalNE
+    ```
+
+- Download strict library dependencies and install:
+    ```bash
+    # Python 2
+    pip install -r requirements.txt
+    sudo python setup.py install
+    
+    # Python 3
+    pip3 install -r requirements.txt
+    sudo python3 setup.py install
+    ```
+
+Check the installation by running `simple_example.py` or `functions_example.py` as shown below.
+If you have installed the package using pip, you will need to download the examples folder from
+the github repository first.
+```bash
+# Python 2
+cd examples/
+python simple_example.py
+
+# Python 3
+cd examples/
+python3 simple_example.py
+```
+
+**NOTE:** In order to run the `evaluator_example.py` script, the 
+OpenNE library, PRUNE and Metapath2Vec are required. The instructions for installing 
+them are available 
+[here](https://github.com/thunlp/OpenNE), [here](https://github.com/ntumslab/PRUNE), 
+and [here](https://www.dropbox.com/s/w3wmo2ru9kpk39n/code_metapath2vec.zip?dl=0), 
+respectively. The instructions on how to run evaluations using *.ini* files are 
+provided in the next section. 
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+## Usage ##
+
+### As a command line tool ###
+
+The library takes as input an *.ini* configuration file. This file allows the user 
+to specify the evaluation settings, from the task to perform to the networks to use, 
+data preprocessing, methods and baselines to evaluate, and types of output to provide.
+
+An example `conf.ini` file is provided describing the available options
+for each parameter. This file can be either modified to simulate different
+evaluation settings or used as a template to generate other *.ini* files.
+
+Additional configuration (*.ini*) files are provided replicating the experimental 
+sections of different papers in the NE literature. These can be found in different
+folders under `examples/replicated_setups`. One such configuration file is 
+`examples/replicated_setups/node2vec/conf_node2vec.ini`. This file simulates the link 
+prediction experiments of the paper "Scalable Feature Learning for Networks" by A. Grover 
+and J. Leskovec.
+
+Once the configuration is set, the evaluation can be run as indicated in the next
+subsection.
+
+#### Running the conf examples ####
+
+In order to run the evaluations using the provided `conf.ini` or any other *.ini*
+file, the following steps are necessary: 
+
+1. Download/Install the methods you want to test:
+    * For `conf.ini`:
+        * Install [OpenNE](https://github.com/thunlp/OpenNE) 
+        * Install [PRUNE](https://github.com/ntumslab/PRUNE)
+    * For other *.ini* files you may need:
+        *   [Deepwalk](https://github.com/phanein/deepwalk),
+            [Node2vec](https://github.com/aditya-grover/node2vec),
+            [LINE](https://github.com/tangjianpku/LINE),
+            [Metapath2vec](https://ericdongyx.github.io/metapath2vec/m2v.html), and/or
+            [CNE](https://bitbucket.org/ghentdatascience/cne/).
+
+2. Download the datasets used in the examples:
+   * For `conf.ini`:
+      * [StudentDB](http://adrem.ua.ac.be/smurfig)
+      * [Facebook](https://snap.stanford.edu/data/egonets-Facebook.html) (combined network)
+      * [ArXiv GR-QC](https://snap.stanford.edu/data/ca-GrQc.html)
+   * For other *.ini* files you may need:
+      * [Facebook-wallpost](http://socialnetworks.mpi-sws.org/data-wosn2009.html)
+      * [ArXiv Astro-Ph](http://snap.stanford.edu/data/ca-AstroPh.html)
+      * [ArXiv Hep-Ph](https://snap.stanford.edu/data/cit-HepPh.html)
+      * [BlogCatalog](http://socialcomputing.asu.edu/datasets/BlogCatalog3)
+      * [Wikipedia](http://snap.stanford.edu/node2vec)
+      * [PPI](http://snap.stanford.edu/node2vec/Homo_sapiens.mat)
+
+3. Set the correct dataset paths in the INPATHS option of the corresponding *.ini* 
+file. And the correct method paths under METHODS_OPNE and/or METHODS_OTHER options. 
+
+4. Run the evaluation:
+    ```bash
+    # For conf.ini run:
+    python -m evalne ./examples/conf.ini
+
+    # For conf_node2vec.ini run:
+    python -m evalne ./examples/node2vec/conf_node2vec.ini
+    ```
+
+**Note**: The input networks for EvalNE are required to be in edgelist format.
+
+### As an API ###
+
+The library can be imported and used like any other Python module. Next, we
+present a very basic LP example, for more complete ones we refer the user to the
+`examples` folder and the docstring documentation of the evaluator and the split submodules.
+
+```python
+from evalne.evaluation.evaluator import LPEvaluator
+from evalne.evaluation.split import LPEvalSplit
+from evalne.evaluation.score import Scoresheet
+from evalne.utils import preprocess as pp
+
+# Load and preprocess the network
+G = pp.load_graph('../evalne/tests/data/network.edgelist')
+G, _ = pp.prep_graph(G)
+
+# Create an evaluator and generate train/test edge split
+traintest_split = LPEvalSplit()
+traintest_split.compute_splits(G)
+nee = LPEvaluator(traintest_split)
+
+# Create a Scoresheet to store the results
+scoresheet = Scoresheet()
+
+# Set the baselines
+methods = ['random_prediction', 'common_neighbours', 'jaccard_coefficient']
+
+# Evaluate baselines
+for method in methods:
+    result = nee.evaluate_baseline(method=method)
+    scoresheet.log_results(result)
+
+try:
+    # Check if OpenNE is installed
+    import openne
+
+    # Set embedding methods from OpenNE
+    methods = ['node2vec', 'deepwalk', 'GraRep']
+    commands = [
+        'python -m openne --method node2vec --graph-format edgelist --p 1 --q 1',
+        'python -m openne --method deepWalk --graph-format edgelist --number-walks 40',
+        'python -m openne --method grarep --graph-format edgelist --epochs 10']
+    edge_emb = ['average', 'hadamard']
+
+    # Evaluate embedding methods
+    for i in range(len(methods)):
+        command = commands[i] + " --input {} --output {} --representation-size {}"
+        results = nee.evaluate_cmd(method_name=methods[i], method_type='ne', command=command,
+                                   edge_embedding_methods=edge_emb, input_delim=' ', output_delim=' ')
+        scoresheet.log_results(results)
+
+except ImportError:
+    print("The OpenNE library is not installed. Reporting results only for the baselines...")
+    pass
+
+# Get output
+scoresheet.print_tabular()
+
+``` 
+
+### Output ###
+
+The library stores all the output generated in a single folder per execution. The name
+of this folder is: `{task}_eval_{month}{day}_{hour}{min}`. Where `{task}` is one of:
+lp, sp, nr or nc.
+
+The library can provide two types of outputs, depending on the value of the SCORES option
+of the configuration file. If the keyword *all* is specified, the library will generate a 
+file named `eval_output.txt` containing for each method and network analysed all the 
+metrics available (auroc, precision, f-score, etc.). If more than one experiment repeat 
+is requested the values reported will be the average over all the repeats. 
+
+Setting the SCORES option to `%(maximize)` will generate a similar output file as before.
+The content of this file, however, will be a table (Alg. x Networks) containing exclusively 
+the score specified in the MAXIMIZE option for each combination of method and network
+averaged over all experiment repeats. In addition a second table indicating the average 
+execution time per method and dataset will be generated.
+
+If the option CURVES is set to a valid option then for each method dataset and experiment 
+repeat a PR or ROC curve will be generated. If the option SAVE_PREP_NW is set to True, each
+evaluated network will be stored, in edgelist format, in a folder with the same name as the 
+network.
+
+Finally, the library also generates an `eval.log` file and a `eval.pkl`. The first file 
+contains important information regarding the evaluation process such as methods whose 
+execution has failed, or validation scores. The second one encapsulates all the evaluation
+results as a pickle file. This file can be conveniently loaded and the results can be 
+transformed into e.g. pandas dataframes or latex tables.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+Contributions are **greatly appreciated**. If you want to help us improve EvalNE, 
+please fork the repo and create a new pull request. Don't forget to give the project a star! Thanks!
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -196,11 +376,12 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+Alternatively, you can make suggestions or report bugs by opening a new issue with the appropriate tag 
+("feature" or "bug") and following our Contributing template.
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-
-<!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
@@ -208,48 +389,20 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
+## Citation ##
 
-<!-- CONTACT -->
-## Contact
+If you have found EvaNE useful in your research, please consider giving the repo a star 
+and citing our [arXiv paper](https://arxiv.org/abs/1901.09691):
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
-
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
-
-<!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
-
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
-
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
-* [Malven's Grid Cheatsheet](https://grid.malven.co/)
-* [Img Shields](https://shields.io)
-* [GitHub Pages](https://pages.github.com)
-* [Font Awesome](https://fontawesome.com)
-* [React Icons](https://react-icons.github.io/react-icons/search)
+```bibtex
+    @misc{Mara2019,
+      author = {Alexandru Mara and Jefrey Lijffijt and Tijl De Bie},
+      title = {EvalNE: A Framework for Evaluating Network Embeddings on Link Prediction},
+      year = {2019},
+      archivePrefix = {arXiv},
+      eprint = {1901.09691}
+    }
+```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/othneildrew/Best-README-Template.svg?style=for-the-badge
-[contributors-url]: https://github.com/othneildrew/Best-README-Template/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/othneildrew/Best-README-Template.svg?style=for-the-badge
-[forks-url]: https://github.com/othneildrew/Best-README-Template/network/members
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
-[issues-shield]: https://img.shields.io/github/issues/othneildrew/Best-README-Template.svg?style=for-the-badge
-[issues-url]: https://github.com/othneildrew/Best-README-Template/issues
-[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
-[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/othneildrew
-[product-screenshot]: images/screenshot.png
