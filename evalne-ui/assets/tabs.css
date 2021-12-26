@@ -1,0 +1,91 @@
+
+/* Tab buttons */
+.custom-tabs-container {
+    width: 100%;
+}
+
+/* Tabs background div */
+.custom-tabs {
+    float: left;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+    width: 20%;
+}
+
+.custom-tab {
+    height: 60px;
+    opacity: 0.5;
+    /*color:#586069;*/
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border-top: 3px solid transparent !important;
+    border-left: 0px !important;
+    border-right: 0px !important;
+    border-bottom: 0px !important;
+    background: #fafbfc;
+    padding: 12px !important;
+    font-family: "system-ui";
+    display: flex !important;
+    align-items: center;
+}
+.custom-tab--selected {
+    color: black;
+    border-top: 3px solid #e36209 !important;
+    font-weight: bold;
+    opacity: 1;
+}
+
+.dashboard-tab {
+    background: #fafbfc url("icons/dashboard.png") no-repeat 90%;
+    background-size: 20px;
+}
+
+.monitoring-tab {
+    background: #fafbfc url("icons/monitoring.svg") no-repeat 90%;
+    background-size: 20px;
+}
+
+.runs-tab {
+    background: #fafbfc url("icons/runs.svg") no-repeat 90%;
+    background-size: 20px;
+}
+
+.results-tab {
+    background: #fafbfc url("icons/results.png") no-repeat 90%;
+    background-size: 20px;
+}
+
+
+.row {
+    border-left: 1px solid #ccc;
+    border-bottom: 1px transparent;
+    background-color: #f9f9f9;
+    display: flex;
+}
+
+.empty {
+    float: left;
+    width: 18%;
+    height: inherit;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    font-size: 1.17em;
+    text-align: end;
+    padding-right: 2%;
+    background-color: #f9f9f9;
+}
+
+.tabs-head {
+    float: left;
+    width: 75%;
+    height: inherit;
+    color: white;
+    background-color: #229bc9;
+    padding-left: 5%;
+}
+
+.tabs-content {
+    width: 70%;
+    padding-left: 5%;
+    padding-right: 5%;
+}
