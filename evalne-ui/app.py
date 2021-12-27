@@ -98,23 +98,23 @@ app.layout = html.Div([
 def render_content(tab):
     if tab == 'dashboard':
         return html.Div([
-            html.H3('Dashboard')
+            html.H3('Dashboard', className='header-title')
         ]), dashboard_layout
     elif tab == 'monitoring':
         return html.Div([
-            html.H3('Monitoring')
+            html.H3('Monitoring', className='header-title')
         ]), html.Div([
             html.H3('Monitoring content!')
         ])
     elif tab == 'runs':
         return html.Div([
-            html.H3('Runs')
+            html.H3('Runs', className='header-title')
         ]), html.Div([
             html.H3('Runs content!')
         ])
     elif tab == 'results':
         return html.Div([
-            html.H3('Results')
+            html.H3('Results', className='header-title')
         ]), html.Div([
             html.H3('Results content!')
         ])

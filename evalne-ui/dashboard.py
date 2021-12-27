@@ -13,6 +13,17 @@ dashboard_layout = html.Div([
 
     html.H3(children='Global and Edge Sampling Parameters'),
     html.Hr(),
+
+    # TASK (dropdown)
+        # if LP:
+            # LP_NUM_EDGE_SPLITS (text check integer)
+            # EDGE_EMBEDDING_METHODS (dropdown)
+        # if NR (TODO)
+            # NR_EDGE_SAMP_FRAC (text check integer)
+            # EDGE_EMBEDDING_METHODS (dropdown)
+        # if NC (TODO)
+            # NC_NUM_NODE_SPLITS (text check integer)
+            # NC_NODE_FRACS (text check frac)
     html.Div(
         children=[
             html.Div(
@@ -32,7 +43,7 @@ dashboard_layout = html.Div([
             html.Div(
                 children=[
                     html.Label(['Num Edge Splits:']),
-                    dcc.Input(id="input-box-1", type="number", value=5, style={'height': '30px'}),
+                    dcc.Input(id="input-box-1", className='input-box', type="number", value=5),
                 ],
                 style={'width': '30%', 'padding-right': '3%'}
             ),
@@ -53,37 +64,120 @@ dashboard_layout = html.Div([
         ],
         style={'display': 'flex'}
     ),
+    html.Br(),
 
-
-    # TASK (dropdown)
-        # if LP:
-            # LP_NUM_EDGE_SPLITS (text check integer)
-            # EDGE_EMBEDDING_METHODS (dropdown)
-        # if NR
-            # NR_EDGE_SAMP_FRAC (text check integer)
-            # EDGE_EMBEDDING_METHODS (dropdown)
-        # if NC
-            # NC_NUM_NODE_SPLITS (text check integer)
-            # NC_NODE_FRACS (text check frac)
     # LP_MODEL (dropdown + custom input)
     # EMBED_DIM (text check integer)
     # TIMEOUT (text check integer)
     # SEED (text check integer)
     # VERBOSE (checkbox)
+    html.Div(
+        children=[
+            html.Div(
+                children=[
+                    html.Label(['LP model:']),
+                    dcc.Dropdown(
+                        id='lpmodel-dropdown',
+                        options=[{'label': 'LogisticRegression', 'value': 'lr'},
+                                 {'label': 'LogisticRegressionCV', 'value': 'lrcv'}],
+                        value='lrcv',
+                    ),
+                ],
+                style={'width': '22%', 'padding-right': '3%'}
+            ),
+            html.Div(
+                children=[
+                    html.Label(['Embedding dimensionality:']),
+                    dcc.Input(id="input-box-2", className='input-box', type="number", value=128),
+                ],
+                style={'width': '22%', 'padding-right': '3%'}
+            ),
+            html.Div(
+                children=[
+                    html.Label(['Evaluation timeout:']),
+                    dcc.Input(id="input-box-3", className='input-box', type="number", value=0),
+                ],
+                style={'width': '22%', 'padding-right': '3%'}
+            ),
+            html.Div(
+                children=[
+                    html.Label(['Seed:']),
+                    dcc.Input(id="input-box-4", className='input-box', type="number", value=42),
+                ],
+                style={'width': '22%', 'padding-right': '3%'}
+            ),
+        ],
+        style={'display': 'flex'}
+    ),
+    html.Br(),
 
     # TRAINTEST_FRAC (text check frac)
     # TRAINVALID_FRAC (text check frac)
     # SPLIT_ALG (dropdown)
     # OWA (dropdown)
     # FE_RATIO (text check integer)
+    html.Div(
+        children=[
+            html.Div(
+                children=[
+                    html.Label(['Train-test fraction:']),
+                    dcc.Input(id="input-box-5", type="range", value=0.8, min=0, max=1, step=0.1),
+                    html.Br(),
+                    html.Label(['Train-valid fraction:']),
+                    dcc.Input(id="input-box-6", type="range", value=0.9, min=0, max=1, step=0.1),
+                ],
+                style={'width': '22%', 'padding-right': '3%'}
+            ),
+            html.Div(
+                children=[
+                    html.Label(['Split algorithm:']),
+                    dcc.Dropdown(
+                        id='splitalg-dropdown',
+                        options=[{'label': 'Spanning tree', 'value': 'st'},
+                                 {'label': 'Random', 'value': 'rand'},
+                                 {'label': 'Naive', 'value': 'naive'},
+                                 {'label': 'Fast', 'value': 'fast'},
+                                 {'label': 'Timestamp', 'value': 'timestamp'}],
+                        value='st',
+                    ),
+                ],
+                style={'width': '22%', 'padding-right': '3%'}
+            ),
+            html.Div(
+                children=[
+                    html.Label(['Negative sampling:']),
+                    dcc.Dropdown(
+                        id='negsamp-dropdown',
+                        options=[{'label': 'Open world', 'value': 'ow'},
+                                 {'label': 'Closed world', 'value': 'cw'}],
+                        value='ow',
+                    ),
+                ],
+                style={'width': '22%', 'padding-right': '3%'}
+            ),
+            html.Div(
+                children=[
+                    html.Label(['Negative edge ratio:']),
+                    dcc.Input(id="input-box-7", className='input-box', type="text", value='1:1'),
+                ],
+                style={'width': '22%', 'padding-right': '3%'}
+            ),
+        ],
+        style={'display': 'flex'}
+    ),
+    html.Br(),
 
     html.H3(children='Networks and Preprocessing'),
+    html.Hr(),
+
     # NAMES (text)
     # INPATHS (text)
     # LABELPATH (text)
     # DIRECTED (checkbox)
     # SEPARATORS (dropdown + custom input)
     # COMMENTS (dropdown + custom input)
+    
+
 
     # RELABEL (checkbox)
     # DEL_SELFLOOPS (checkbox)
@@ -92,21 +186,14 @@ dashboard_layout = html.Div([
     # DELIMITER (dropdown + custom input)
 
     html.H3(children='Baselines and NE methods'),
+    html.Hr(),
 
     html.H3(children='Metrics and Plots'),
+    html.Hr(),
     # MAXIMIZE (dropdown)
     # SCORES (dropdown)
     # CURVES (dropdown)
     # PRECATK_VALS (text??)
-
-
-    dcc.Dropdown(
-        id='page-1-dropdown',
-        options=[{'label': i, 'value': i} for i in ['LA', 'NYC', 'MTL']],
-        value='LA'
-    ),
-    html.Div(id='page-1-content'),
-    html.Br(),
 
 ])
 

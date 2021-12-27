@@ -6,3 +6,12 @@ body {
 h1, h2, h3, h4 {
     color: #269df1;
 }
+
+.header-title {
+    color: white;
+}
+
+.input-box {
+    height: 30px;
+    width: -webkit-fill-available;
+}
