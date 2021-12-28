@@ -4,3 +4,4 @@ scipy
 pandas
 dash
 fa2
+dash-daq
