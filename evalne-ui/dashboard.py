@@ -12,8 +12,8 @@ from dash.html.Label import Label
 dashboard_layout = html.Div([
 
     html.H3(children='Global and Edge Sampling Parameters'),
-    html.Hr(),
-
+    html.Hr(className='sectionHr'),
+    html.Br(),
     # TASK (dropdown)
         # if LP:
             # LP_NUM_EDGE_SPLITS (text check integer)
@@ -28,7 +28,7 @@ dashboard_layout = html.Div([
         children=[
             html.Div(
                 children=[
-                    html.Label(['Evaluation Task:']),
+                    html.Label(['Evaluation task:']),
                     dcc.Dropdown(
                         id='task-dropdown',
                         options=[{'label': 'Link prediction', 'value': 'LP'},
@@ -42,14 +42,14 @@ dashboard_layout = html.Div([
             ),
             html.Div(
                 children=[
-                    html.Label(['Num Edge Splits:']),
+                    html.Label(['Num edge splits:']),
                     dcc.Input(id="input-box-1", className='input-box', type="number", value=5),
                 ],
                 style={'width': '30%', 'padding-right': '5%'}
             ),
             html.Div(
                 children=[
-                    html.Label(['Edge Embedding Method:']),
+                    html.Label(['Edge embedding method:']),
                     dcc.Dropdown(
                         id='ee-dropdown',
                         options=[{'label': 'Average', 'value': 'Avg'},
@@ -168,7 +168,8 @@ dashboard_layout = html.Div([
     html.Br(),
 
     html.H3(children='Networks and Preprocessing'),
-    html.Hr(),
+    html.Hr(className='sectionHr'),
+    html.Br(),
 
     # NAMES (text)
     # INPATHS (text)
@@ -314,12 +315,187 @@ dashboard_layout = html.Div([
         style={'display': 'flex'}
     ),
 
-    html.H3(children='Baselines and NE methods'),
-    html.Hr(),
+    html.H3(children='Baselines and NE Methods'),
+    html.Hr(className='sectionHr'),
     html.Br(),
+    # LP_BASELINES
+    # NEIGHBOURHOOD
+    # METHOD TYPE (library or other)
+    # NAMES
+    # EMBTYPE
+    # WRITE_WEIGHTS
+    # WRITE_DIR
+    # METHODS
+    # TUNE_PARAMS
+    # INPUT_DELIM
+    # OUTPUT_DELIM
+    html.Div(
+        children=[
+            html.Div(
+                children=[
+                    html.Label(['Baseline methods:']),
+                    dcc.Checklist(
+                        options=[
+                            {'label': 'Common Neighbours', 'value': 'cn'},
+                            {'label': 'Jaccard Coefficient', 'value': 'jc'},
+                            {'label': 'Adamic Adar', 'value': 'aa'},
+                            {'label': 'Cosine Similarity', 'value': 'cs'},
+                            {'label': 'Resource Allocation', 'value': 'ra'},
+                            {'label': 'Preferential Attachment', 'value': 'pa'},
+                        ],
+                        style={'display': 'grid'}
+                    ),
+                ],
+                style={'width': '30%', 'padding-right': '5%'}
+            ),
+            html.Div(
+                children=[
+                    dcc.Checklist(
+                        options=[
+                            {'label': 'LHN Index', 'value': 'lhn'},
+                            {'label': 'Topological Overlap', 'value': 'to'},
+                            {'label': 'Random Prediction', 'value': 'rand'},
+                            {'label': 'Katz exact', 'value': 'katz'},
+                            {'label': 'Katz approx', 'value': 'katza'},
+                            {'label': 'All Baselines', 'value': 'bl'},
+                        ],
+                        style={'display': 'grid'}
+                    ),
+                ],
+                style={'width': '30%', 'padding-right': '5%', 'padding-top': '20px'}
+            ),
+            html.Div(
+                children=[
+                    html.Label(['Neighbourhood type:']),
+                    dcc.Dropdown(
+                        id='prepdelim-dropdown',
+                        options=[{'label': 'In neighbourhood', 'value': 'in'},
+                                 {'label': 'Out neighbourhood', 'value': 'out'},
+                                 {'label': 'In-Out', 'value': 'inout'}],
+                        value='inout',
+                    ),
+                ],
+                style={'width': '30%'}
+            ),
+        ],
+        style={'display': 'flex'}
+    ),
+    html.Br(),
+    html.Div(children=[
+        html.Label(['NE method 1:'])]
+    ),
+    html.Hr(style={'border-top-style': 'dashed'}),
+    html.Div(
+        children=[
+            html.Div(
+                children=[
+                    html.Label(['Method type:']),
+                    dcc.Dropdown(
+                        id='splitalg-dropdown',
+                        options=[
+                            {'label': 'OpenNE', 'value': 'opne'},
+                            {'label': 'GEM', 'value': 'gem'},
+                            {'label': 'KarateClub', 'value': 'kk'},
+                            {'label': 'Other', 'value': 'other'}],
+                        value='other',
+                    ),
+                ],
+                style={'width': '22%', 'padding-right': '4%'}
+            ),
+            html.Div(
+                children=[
+                    html.Label(['Method name:']),
+                    dcc.Input(id="input-box-12", className='input-box', type="text",
+                              placeholder="Insert method name..."),
+                ],
+                style={'width': '22%', 'padding-right': '4%'}
+            ),
+            html.Div(
+                children=[
+                    html.Label(['Embedding type:']),
+                    dcc.Dropdown(
+                        id='negsamp-dropdown',
+                        options=[{'label': 'Node embedding', 'value': 'ne'},
+                                 {'label': 'Edge embedding', 'value': 'ee'},
+                                 {'label': 'End to end', 'value': 'e2e'}],
+                        value='ne',
+                    ),
+                ],
+                style={'width': '22%', 'padding-right': '4%'}
+            ),
+            html.Div(
+                children=[
+                    html.Label(['Method input edgelist:']),
+                    dcc.Checklist(
+                        options=[
+                            {'label': 'Write weights', 'value': 'weights'},
+                            {'label': 'Write both dir', 'value': 'dir'},
+                        ],
+                        value=['dir'],
+                        style={'display': 'grid'}
+                    ),
+                ],
+                style={'width': '22%'}
+            ),
+        ],
+        style={'display': 'flex'}
+    ),
+    html.Br(),
+    html.Div(
+        children=[
+            html.Label(['Method command line call:']),
+            dcc.Input(id="input-box-13", className='input-box', type="text",
+                      placeholder="Insert cmd call (e.g. ./venv/bin/python main.py --input {} --output {} --dim {})"),
+        ],
+    ),
+    html.Br(),
+    html.Div(
+        children=[
+            html.Div(
+                children=[
+                    html.Label(['Tune hyperparameters:']),
+                    dcc.Input(id="input-box-14", className='input-box', type="text",
+                              placeholder="Insert hyperparameters to tune (e.g. --p 0.5 1 --q 1 2)"),
+                ],
+                style={'width': '48%', 'padding-right': '4%'}
+            ),
+            html.Div(
+                children=[
+                    html.Label(['Input delimiter:']),
+                    dcc.Dropdown(
+                        id='indelim-dropdown',
+                        options=[{'label': 'Blank', 'value': 'space'},
+                                 {'label': 'Comma', 'value': 'comma'},
+                                 {'label': 'Tab', 'value': 'tab'}],
+                        value='comma',
+                    ),
+                ],
+                style={'width': '22%', 'padding-right': '4%'}
+            ),
+            html.Div(
+                children=[
+                    html.Label(['Output delimiter:']),
+                    dcc.Dropdown(
+                        id='outdelim-dropdown',
+                        options=[{'label': 'Blank', 'value': 'space'},
+                                 {'label': 'Comma', 'value': 'comma'},
+                                 {'label': 'Tab', 'value': 'tab'}],
+                        value='comma',
+                    ),
+                ],
+                style={'width': '22%'}
+            ),
+        ],
+        style={'display': 'flex'}
+    ),
+    html.Hr(style={'border-top-style': 'dashed'}),
+    html.Div([
+        html.Button('+ Add method', id='add-method', className='btn btn-square btn-sm', n_clicks=0),
+    ]),
 
     html.H3(children='Metrics and Plots'),
-    html.Hr(),
+    html.Hr(className='sectionHr'),
+    html.Br(),
     # MAXIMIZE (dropdown)
     # SCORES (dropdown)
     # CURVES (dropdown)
@@ -395,12 +571,10 @@ dashboard_layout = html.Div([
     html.Br(),
     html.Br(),
     html.Div([
-        html.Button('Run Evaluation', id='run-eval', n_clicks=0),
+        html.Button('Run Evaluation', id='run-eval', className='btn btn-square btn-sm btn-run', n_clicks=0),
     ]),
     html.Br(),
     html.Br(),
+    html.Br(),
+    html.Br(),
 ])
-
-
-
-

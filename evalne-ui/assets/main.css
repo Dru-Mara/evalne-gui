@@ -15,3 +15,31 @@ h1, h2, h3, h4 {
     height: 30px;
     width: -webkit-fill-available;
 }
+
+.sectionHr {
+    border-top: 2px solid #269df1;
+}
+
+.btn {
+    color: #fff;
+    background-color: #269df1;
+    outline:0;
+}
+
+.btn-square {
+    border:0;
+}
+
+.btn-sm {
+    padding: 7px 20px 7px 20px;
+    font-size: 0.8em;
+}
+
+.btn-run {
+    background-color: lawngreen;
+    height: 40px;
+    font-weight: bold;
+    float: right;
+    position: absolute;
+    left: 54%;
+}
