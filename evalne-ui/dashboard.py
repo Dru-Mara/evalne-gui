@@ -381,114 +381,119 @@ dashboard_layout = html.Div([
         style={'display': 'flex'}
     ),
     html.Br(),
-    html.Div(children=[
-        html.Label(['NE method 1:'])]
+    html.Div(children=[html.Label(['NE method 1:'])],
+             style={'display': 'list-item', 'margin-left': '25px'}
     ),
-    html.Hr(style={'border-top-style': 'dashed'}),
+    # html.Hr(style={'border-top-style': 'dashed'}),
     html.Div(
         children=[
             html.Div(
                 children=[
-                    html.Label(['Method type:']),
-                    dcc.Dropdown(
-                        id='splitalg-dropdown',
-                        options=[
-                            {'label': 'OpenNE', 'value': 'opne'},
-                            {'label': 'GEM', 'value': 'gem'},
-                            {'label': 'KarateClub', 'value': 'kk'},
-                            {'label': 'Other', 'value': 'other'}],
-                        value='other',
-                    ),
-                ],
-                style={'width': '22%', 'padding-right': '4%'}
-            ),
-            html.Div(
-                children=[
-                    html.Label(['Method name:']),
-                    dcc.Input(id="input-box-12", className='input-box', type="text",
-                              placeholder="Insert method name..."),
-                ],
-                style={'width': '22%', 'padding-right': '4%'}
-            ),
-            html.Div(
-                children=[
-                    html.Label(['Embedding type:']),
-                    dcc.Dropdown(
-                        id='negsamp-dropdown',
-                        options=[{'label': 'Node embedding', 'value': 'ne'},
-                                 {'label': 'Edge embedding', 'value': 'ee'},
-                                 {'label': 'End to end', 'value': 'e2e'}],
-                        value='ne',
-                    ),
-                ],
-                style={'width': '22%', 'padding-right': '4%'}
-            ),
-            html.Div(
-                children=[
-                    html.Label(['Method input edgelist:']),
-                    dcc.Checklist(
-                        options=[
-                            {'label': 'Write weights', 'value': 'weights'},
-                            {'label': 'Write both dir', 'value': 'dir'},
+                    html.Div(
+                        children=[
+                            html.Label(['Method type:']),
+                            dcc.Dropdown(
+                                id='splitalg-dropdown',
+                                options=[
+                                    {'label': 'OpenNE', 'value': 'opne'},
+                                    {'label': 'GEM', 'value': 'gem'},
+                                    {'label': 'KarateClub', 'value': 'kk'},
+                                    {'label': 'Other', 'value': 'other'}],
+                                value='other',
+                            ),
                         ],
-                        value=['dir'],
-                        style={'display': 'grid'}
+                        style={'width': '22%', 'padding-right': '4%'}
+                    ),
+                    html.Div(
+                        children=[
+                            html.Label(['Method name:']),
+                            dcc.Input(id="input-box-12", className='input-box', type="text",
+                                      placeholder="Insert method name..."),
+                        ],
+                        style={'width': '22%', 'padding-right': '4%'}
+                    ),
+                    html.Div(
+                        children=[
+                            html.Label(['Embedding type:']),
+                            dcc.Dropdown(
+                                id='negsamp-dropdown',
+                                options=[{'label': 'Node embedding', 'value': 'ne'},
+                                         {'label': 'Edge embedding', 'value': 'ee'},
+                                         {'label': 'End to end', 'value': 'e2e'}],
+                                value='ne',
+                            ),
+                        ],
+                        style={'width': '22%', 'padding-right': '4%'}
+                    ),
+                    html.Div(
+                        children=[
+                            html.Label(['Method input edgelist:']),
+                            dcc.Checklist(
+                                options=[
+                                    {'label': 'Write weights', 'value': 'weights'},
+                                    {'label': 'Write both dir', 'value': 'dir'},
+                                ],
+                                value=['dir'],
+                                style={'display': 'grid'}
+                            ),
+                        ],
+                        style={'width': '22%'}
                     ),
                 ],
-                style={'width': '22%'}
+                style={'display': 'flex'}
             ),
-        ],
-        style={'display': 'flex'}
-    ),
-    html.Br(),
-    html.Div(
-        children=[
-            html.Label(['Method command line call:']),
-            dcc.Input(id="input-box-13", className='input-box', type="text",
-                      placeholder="Insert cmd call (e.g. ./venv/bin/python main.py --input {} --output {} --dim {})"),
-        ],
-    ),
-    html.Br(),
-    html.Div(
-        children=[
+            html.Br(),
             html.Div(
                 children=[
-                    html.Label(['Tune hyperparameters:']),
-                    dcc.Input(id="input-box-14", className='input-box', type="text",
-                              placeholder="Insert hyperparameters to tune (e.g. --p 0.5 1 --q 1 2)"),
+                    html.Label(['Method command line call:']),
+                    dcc.Input(id="input-box-13", className='input-box', type="text",
+                              placeholder="Insert cmd call (e.g. ./venv/bin/python main.py --input {} --output {} --dim {})"),
                 ],
-                style={'width': '48%', 'padding-right': '4%'}
             ),
+            html.Br(),
             html.Div(
                 children=[
-                    html.Label(['Input delimiter:']),
-                    dcc.Dropdown(
-                        id='indelim-dropdown',
-                        options=[{'label': 'Blank', 'value': 'space'},
-                                 {'label': 'Comma', 'value': 'comma'},
-                                 {'label': 'Tab', 'value': 'tab'}],
-                        value='comma',
+                    html.Div(
+                        children=[
+                            html.Label(['Tune hyperparameters:']),
+                            dcc.Input(id="input-box-14", className='input-box', type="text",
+                                      placeholder="Insert hyperparameters to tune (e.g. --p 0.5 1 --q 1 2)"),
+                        ],
+                        style={'width': '48%', 'padding-right': '4%'}
+                    ),
+                    html.Div(
+                        children=[
+                            html.Label(['Input delimiter:']),
+                            dcc.Dropdown(
+                                id='indelim-dropdown',
+                                options=[{'label': 'Blank', 'value': 'space'},
+                                         {'label': 'Comma', 'value': 'comma'},
+                                         {'label': 'Tab', 'value': 'tab'}],
+                                value='comma',
+                            ),
+                        ],
+                        style={'width': '22%', 'padding-right': '4%'}
+                    ),
+                    html.Div(
+                        children=[
+                            html.Label(['Output delimiter:']),
+                            dcc.Dropdown(
+                                id='outdelim-dropdown',
+                                options=[{'label': 'Blank', 'value': 'space'},
+                                         {'label': 'Comma', 'value': 'comma'},
+                                         {'label': 'Tab', 'value': 'tab'}],
+                                value='comma',
+                            ),
+                        ],
+                        style={'width': '22%'}
                     ),
                 ],
-                style={'width': '22%', 'padding-right': '4%'}
-            ),
-            html.Div(
-                children=[
-                    html.Label(['Output delimiter:']),
-                    dcc.Dropdown(
-                        id='outdelim-dropdown',
-                        options=[{'label': 'Blank', 'value': 'space'},
-                                 {'label': 'Comma', 'value': 'comma'},
-                                 {'label': 'Tab', 'value': 'tab'}],
-                        value='comma',
-                    ),
-                ],
-                style={'width': '22%'}
+                style={'display': 'flex'}
             ),
         ],
-        style={'display': 'flex'}
+        style={'margin-left': '30px', 'margin-top': '10px', 'margin-bottom': '10px'}
     ),
-    html.Hr(style={'border-top-style': 'dashed'}),
+    # html.Hr(style={'border-top-style': 'dashed'}),
     html.Div([
         html.Button('+ Add method', id='add-method', className='btn btn-square btn-sm', n_clicks=0),
     ]),
