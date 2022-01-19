@@ -11,6 +11,10 @@ h1, h2, h3, h4 {
     color: white;
 }
 
+.section-title {
+    padding-top: 20px;
+}
+
 .input-box {
     height: 30px;
     width: -webkit-fill-available;
@@ -24,6 +28,8 @@ h1, h2, h3, h4 {
     color: #fff;
     background-color: #269df1;
     outline:0;
+    margin-left: 20px;
+    font-size: 0.8em;
 }
 
 .btn-square {
@@ -32,14 +38,16 @@ h1, h2, h3, h4 {
 
 .btn-sm {
     padding: 7px 20px 7px 20px;
-    font-size: 0.8em;
 }
 
 .btn-run {
     background-color: lawngreen;
     height: 40px;
     font-weight: bold;
-    float: right;
-    position: absolute;
-    left: 54%;
+}
+
+.btn-imp {
+    background-color: #269df1;
+    height: 40px;
+    font-weight: bold;
 }
