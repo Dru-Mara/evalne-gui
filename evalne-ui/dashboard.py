@@ -5,11 +5,6 @@ from dash.dependencies import Input, Output
 from dash import dcc, State, html
 from dash.exceptions import PreventUpdate
 
-# TODO: make drag & drops work
-# TODO: make this actually fill in config file
-# TODO: include import config and export config buttons
-# TODO: make run evaluation work
-
 
 dashboard_layout = html.Div([
 

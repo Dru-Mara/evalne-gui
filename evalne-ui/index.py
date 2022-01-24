@@ -1,6 +1,8 @@
 # Run this app with `python app.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
 
+import webbrowser
+from threading import Timer
 from app import app
 from dash.dependencies import Input, Output
 from dash import dcc, State, html
@@ -8,6 +10,11 @@ from runs import runs_layout
 from results import results_layout
 from dashboard import dashboard_layout
 from monitoring import monitoring_layout
+
+
+def open_browser():
+    port = 8050
+    webbrowser.open_new("http://localhost:{}".format(port))
 
 
 app.layout = html.Div([
@@ -103,4 +110,5 @@ def render_content(tab):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=8050, host='0.0.0.0')
+    Timer(1, open_browser).start()
+    app.run_server(debug=True, port=8050, host='localhost', use_reloader=False)
