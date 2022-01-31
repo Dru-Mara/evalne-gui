@@ -37,7 +37,9 @@
 
 * Make run evaluation actually fill in conf file and execute evalne
 * Make import/export buttons work
-* Change data drag & drop to textfield
+* DONE Fix button hoover
+* DONE Toggle Run Evaluation/Stop Evaluation on btn click
+* DONE Change data drag & drop to textfield
 * Add monitoring plots
 * Fill in Runs tab
 * Collect in Results the evaluation outputs of previous runs

@@ -26,10 +26,13 @@ h1, h2, h3, h4 {
 
 .btn {
     color: #fff;
+    font-weight: bold;
     background-color: #269df1;
     outline:0;
     margin-left: 20px;
     font-size: 0.8em;
+    height: 40px;
+    width: 120px;
 }
 
 .btn-square {
@@ -38,16 +41,25 @@ h1, h2, h3, h4 {
 
 .btn-sm {
     padding: 7px 20px 7px 20px;
+    height: 30px;
+    width: 140px;
 }
 
 .btn-run {
-    background-color: lawngreen;
-    height: 40px;
-    font-weight: bold;
+    background-color: #1fcd00;
 }
 
 .btn-imp {
     background-color: #269df1;
-    height: 40px;
-    font-weight: bold;
+}
+
+.btn-active {
+    background-color: #fff; /* Green */
+    color: #1fcd00;
+    border: solid;
+}
+
+.btn:hover {
+    box-shadow: inset 0px 0px 400px 110px rgb(0, 0, 0, 0.2);
+    transition-duration: 0.2s;
 }

@@ -219,49 +219,17 @@ dashboard_layout = html.Div([
     html.Br(),
     html.Div([
         html.Label(['Network edgelist paths:']),
-        dcc.Upload(
-            id='upload-networks',
-            children=html.Div([
-                'Drag and Drop or ',
-                html.A('Select Edgelist Files')
-            ]),
+        dcc.Textarea(
+            id='network-paths',
+            placeholder='Insert network edgelist paths, one per line...',
             style={
                 'width': '100%',
-                'height': '60px',
-                'lineHeight': '60px',
-                'borderWidth': '1px',
-                'borderStyle': 'dashed',
-                'borderRadius': '5px',
-                'textAlign': 'center'
+                'height': '100px',
             },
-            # Allow multiple files to be uploaded
-            multiple=True
         ),
-        html.Div(id='output-network-upload'),
     ]),
     html.Br(),
-    html.Div([
-        html.Label(['Network node label paths:']),
-        dcc.Upload(
-            id='upload-nodelabels',
-            children=html.Div([
-                'Drag and Drop or ',
-                html.A('Select Node Label Files')
-            ]),
-            style={
-                'width': '100%',
-                'height': '60px',
-                'lineHeight': '60px',
-                'borderWidth': '1px',
-                'borderStyle': 'dashed',
-                'borderRadius': '5px',
-                'textAlign': 'center'
-            },
-            # Allow multiple files to be uploaded
-            multiple=True
-        ),
-        html.Div(id='output-labels-upload'),
-    ]),
+    html.Div(id='network-labelpaths-div'),
     html.Br(),
     html.Div(
         children=[
@@ -493,6 +461,26 @@ dashboard_layout = html.Div([
 ])
 
 
+# Callbacks
+
+@app.callback(Output('run-eval', 'className'),
+              Output('run-eval', 'children'),
+              Input('run-eval', 'n_clicks'))
+def set_active(n_clicks):
+    ctx = callback_context
+
+    if not ctx.triggered or n_clicks is None:
+        return ['btn btn-square btn-run', 'Run Evaluation']
+
+    else:
+        if int(n_clicks) % 2 == 0:
+            # Start run
+            return ['btn btn-square btn-run', 'Run Evaluation']
+        else:
+            # Stop run
+            return ['btn btn-square btn-run btn-active', 'Stop Evaluation']
+
+
 @app.callback(Output('output-box-5', 'children'),
               Input('input-box-5', 'value'))
 def render_train_perc(frac):
@@ -528,6 +516,7 @@ def update_output(list_of_contents, list_of_names):
                Output('exprep', 'style'),
                Output('output-fracs', 'style'),
                Output('ee', 'style'),
+               Output('network-labelpaths-div', 'children'),
                Output('maximize-dropdown', 'options'),
                Output('maximize-dropdown', 'value'),
                Output('scores-dropdown', 'options')],
@@ -541,6 +530,7 @@ def render_content(task):
                 {'width': '30%', 'padding-right': '5%'},
                 {'width': '0%', 'padding-right': '0%'},
                 {'width': '30%'},
+                [],
                 [{'label': 'AUC', 'value': 'auc'},
                  {'label': 'F-score', 'value': 'fscore'},
                  {'label': 'Precision', 'value': 'prec'},
@@ -566,6 +556,7 @@ def render_content(task):
                 {'width': '0%', 'padding-right': '0%'},
                 {'width': '30%', 'padding-right': '5%'},
                 {'width': '30%'},
+                [],
                 [{'label': 'AUC', 'value': 'auc'},
                  {'label': 'F-score', 'value': 'fscore'},
                  {'label': 'Precision', 'value': 'prec'},
@@ -592,6 +583,15 @@ def render_content(task):
                 {'width': '22%', 'padding-right': '4%'},
                 {'width': '22%', 'padding-right': '4%'},
                 {'width': '22%'},
+                [html.Label(['Network node label paths:']),
+                 dcc.Textarea(
+                     id='network-nodelabels',
+                     placeholder='Insert network node label file paths, one per line...',
+                     style={
+                         'width': '100%',
+                         'height': '100px',
+                     },
+                 )],
                 [{'label': 'F1-micro', 'value': 'f1_micro'},
                  {'label': 'F1-macro', 'value': 'f1_macro'},
                  {'label': 'F1-weighted', 'value': 'f1_weighted'}],
