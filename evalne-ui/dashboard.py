@@ -4,7 +4,7 @@ from dash import callback_context
 from dash.dependencies import Input, Output
 from dash import dcc, State, html
 from dash.exceptions import PreventUpdate
-
+from utils import *
 
 dashboard_layout = html.Div([
 
@@ -470,14 +470,24 @@ def set_active(n_clicks):
     ctx = callback_context
 
     if not ctx.triggered or n_clicks is None:
-        return ['btn btn-square btn-run', 'Run Evaluation']
+        # TODO: search process with 'evalne' name. If exists init button to `Stop Evaluation` else init to `Run ...`
+        # proc = search_process('evalne')
+        # if proc is None:
+        #     return ['btn btn-square btn-run', 'Start Evaluation']
+        # else:
+        #     return ['btn btn-square btn-run btn-active', 'Stop Evaluation']
+        return ['btn btn-square btn-run', 'Start Evaluation']
 
     else:
         if int(n_clicks) % 2 == 0:
-            # Start run
-            return ['btn btn-square btn-run', 'Run Evaluation']
+            # Even clicks stop eval and set button text to `Run Evaluation`
+            # TODO: Stop evaluation does not work
+            stop_process('evalne')
+            return ['btn btn-square btn-run', 'Start Evaluation']
         else:
-            # Stop run
+            # Odd clicks start eval and set butto to `Stop Evaluation`
+            start_process('/home/almara/miniconda3/envs/venv/bin/python -m evalne /home/almara/Desktop/EvalNE/examples/dummy_conf.ini', True)
+            #start_process("python -c 'import time; print(\"Start\"); time.sleep(20); print(\"Done\")'", 60, True)
             return ['btn btn-square btn-run btn-active', 'Stop Evaluation']
 
 

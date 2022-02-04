@@ -166,12 +166,16 @@ If you have found EvaNE or the EvalNE-UI useful in your research, please conside
 and citing our [arXiv paper](https://arxiv.org/abs/1901.09691):
 
 ```bibtex
-    @misc{Mara2019,
-      author = {Alexandru Mara and Jefrey Lijffijt and Tijl De Bie},
-      title = {EvalNE: A Framework for Evaluating Network Embeddings on Link Prediction},
-      year = {2019},
-      archivePrefix = {arXiv},
-      eprint = {1901.09691}
+    @article{MARA2022evalne,
+      title = {EvalNE: A Framework for Network Embedding Evaluation},
+      author = {Alexandru Mara and Jefrey Lijffijt and Tijl {De Bie}},
+      journal = {SoftwareX},
+      volume = {17},
+      pages = {},
+      year = {2022},
+      issn = {100997},
+      doi = {10.1016/j.softx.2022.100997},
+      url = {https://www.sciencedirect.com/science/article/pii/S2352711022000139}
     }
 ```
 
