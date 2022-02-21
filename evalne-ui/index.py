@@ -54,6 +54,7 @@ app.layout = html.Div([
             id="main-tabs",
             value='dashboard',
             vertical=True,
+            persistence=True,
             parent_className='custom-tabs',
             className='custom-tabs-container',
             children=[

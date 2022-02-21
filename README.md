@@ -35,10 +35,12 @@
 
 ## TODO ##
 
+* Make tab data persistent, for when tabs are switched
 * Make run evaluation actually fill in conf file and execute evalne
 * Make import/export buttons work
 * DONE Fix button hoover
 * DONE Toggle Run Evaluation/Stop Evaluation on btn click
+* DONE Use interval object to keep Start/Stop button appearance consistent with eval state
 * DONE Change data drag & drop to textfield
 * Add monitoring plots
 * Fill in Runs tab
