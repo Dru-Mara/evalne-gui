@@ -602,70 +602,7 @@ dashboard_layout = html.Div([
     dcc.Store(id='num-methods', storage_type='local')
 ])
 
-
 # Callbacks
-@app.callback(Output({'type': 'lib-dropdown', 'index': ALL}, 'value'),
-              Output('method-values', 'data'),
-              Input({'type': 'lib-dropdown', 'index': ALL}, 'value'),
-              Input('clr-conf', 'n_clicks'),
-              State({'type': 'lib-dropdown', 'index': ALL}, 'id'),
-              State('method-values', 'data'),
-              State('num-methods', 'data'))
-def save_methods(lib_ddvalues, nclick, ids, old_data, num_methods):
-    ctx = callback_context
-    print('call')
-    num_methods = int(num_methods)
-    #print(lib_ddvalues)
-    #print(ids)
-    #print(old_data)
-    #return 'other', json.loads({})
-    if not ctx.triggered:
-        if old_data is None:
-            print('init')
-            # Triggered on first ui load
-            res = ['other']
-            print(res)
-            return res, json.dumps(res)
-        else:
-            # Triggered when changing tabs/restarting
-            print('loading json')
-            #print(old_data)
-            #print(num_methods)
-            od = json.loads(old_data)
-            #print(od)
-            if len(od) == num_methods:
-                print('equal')
-                res = list(od)
-            elif len(od) < num_methods:
-                print('larger')
-                res = od + ['other']
-            else:
-                print('smaller')
-                res = od[:num_methods]
-            print(res)
-            return res, json.dumps(res)
-
-    else:
-        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-        if button_id == 'clr-conf':
-            # Triggered by user click
-            res = ['other'] * num_methods
-            print('clear')
-            print(res)
-            return res, json.dumps(res)
-        else:
-            # Triggered when any value is changed in conf
-            if all(v is None for v in lib_ddvalues):
-                print('all are none')
-                res = json.loads(old_data)
-            else:
-                res = lib_ddvalues
-            print('dump values')
-            #print(lib_ddvalues)
-            #print(old_data)
-            print(res)
-            return res, json.dumps(res)
-
 
 # @app.callback([[Output('lib-dropdown-{}'.format(val+1), 'value') for val in range(max_methods)]],
 #               Output('method-values', 'data'),
@@ -704,7 +641,7 @@ def save_methods(lib_ddvalues, nclick, ids, old_data, num_methods):
               [[Input(key, 'value') for key in init_vals.keys()]],
               Input('clr-conf', 'n_clicks'),
               State('conf-values', 'data'))
-def clear_config(data, nclick, old_data):
+def refresh_config(data, nclick, old_data):
     """ This function stores and loads data from a dcc.Store on page-refresh/tab-change/user-action. """
     ctx = callback_context
 
@@ -747,7 +684,7 @@ def set_run_button_state(n_intervals):
 
 @app.callback(Output('run-eval', 'n_clicks'),
               Input('run-eval', 'n_clicks'))
-def set_active(n_clicks):
+def start_stop_eval(n_clicks):
     """ Function that starts/stops an evaluation when the Start/Stop button is pressed. """
     ctx = callback_context
 
@@ -839,6 +776,70 @@ def render_content(task):
                  {'label': 'F1-weighted', 'value': 'f1_weighted'}]]
 
 
+@app.callback(Output({'type': 'lib-dropdown', 'index': ALL}, 'value'),
+              Output('method-values', 'data'),
+              Input({'type': 'lib-dropdown', 'index': ALL}, 'value'),
+              Input('clr-conf', 'n_clicks'),
+              State('method-values', 'data'),
+              State('num-methods', 'data'))
+def save_methods(lib_ddvalues, nclick, old_data, num_methods):
+    ctx = callback_context
+    print('call')
+    #print(lib_ddvalues)
+    #print(ids)
+    #print(old_data)
+    #return 'other', json.loads({})
+    if not ctx.triggered:
+        if old_data is None:
+            print('init')
+            # Triggered on first ui load
+            res = ['other']
+            print(res)
+            return res, json.dumps(res)
+        else:
+            # Triggered when changing tabs/restarting/calls from other functions that changed input states
+            print('loading json')
+            #print(old_data)
+            #print(num_methods)
+            od = json.loads(old_data)
+            num_methods = json.loads(num_methods)
+            #print(od)
+            if len(od) == num_methods:
+                print('equal')
+                res = list(od)
+            elif len(od) < num_methods:
+                print('larger')
+                res = od + ['other']
+            elif len(od) > num_methods:
+                print('smaller')
+                res = od[:num_methods]
+            else:
+                raise PreventUpdate
+            print(res)
+            return res, json.dumps(res)
+
+    else:
+        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+        if button_id == 'clr-conf':
+            # Triggered by user click
+            res = ['other'] #* num_methods
+            print('clear')
+            print(res)
+            return res, json.dumps(res)
+        else:
+            # Triggered when any value is changed in conf
+            if all(v is None for v in lib_ddvalues):
+                print('all are none')
+                res = json.loads(old_data)
+            else:
+                res = lib_ddvalues
+            print('dump values')
+            #print(lib_ddvalues)
+            #print(old_data)
+            print(res)
+            return res, json.dumps(res)
+
+
 @app.callback(Output('method', 'children'),
               Output('add-method', 'n_clicks'),
               Output('num-methods', 'data'),
@@ -847,28 +848,29 @@ def render_content(task):
               State('method', 'children'),
               State('add-method', 'n_clicks'),
               State('num-methods', 'data'))
-def add_method(val, delete, children, n_clicks, old_data):
+def add_method(val, delete, children, n_clicks, old_nummethods):
     """ This function manages the number of methods visible at any time based on add/del clicks. """
     # Get callback context to detect which button triggered it
+    val = int(val)
+    n_clicks = int(n_clicks)
     ctx = callback_context
     if not ctx.triggered:
-        if old_data is None:
+        if old_nummethods is None:
             # add_method n_clicks always starts at 1 to display the first method
-            if val:
-                el = get_method_div(val)
+            children = []
+            for i in range(val):
+                el = get_method_div(i+1)
                 children.append(el)
-                return children, val, json.dumps(val)
-            else:
-                raise PreventUpdate
+            return children, val, json.dumps(val)
         else:
-            loaded_val = json.loads(old_data)
+            loaded_val = json.loads(old_nummethods)
             # Since add_method n_clicks counts from 1 we do i+1 for the range
             children = []
             for i in range(loaded_val):
                 el = get_method_div(i+1)
                 children.append(el)
             print('refresh')
-            return children, loaded_val, old_data
+            return children, loaded_val, old_nummethods
     else:
         button_id = ctx.triggered[0]['prop_id'].split('.')[0]
 
@@ -883,10 +885,10 @@ def add_method(val, delete, children, n_clicks, old_data):
         elif button_id == 'delete-method':
             children = []
             for i in range(n_clicks-1):
-                el = get_method_div(i + 1)
+                el = get_method_div(i+1)
                 children.append(el)
             print('delete')
-            return children, n_clicks - 1, json.dumps(n_clicks - 1)
+            return children, n_clicks-1, json.dumps(n_clicks-1)
 
         else:
             raise PreventUpdate
