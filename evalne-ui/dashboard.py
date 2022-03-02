@@ -602,7 +602,9 @@ dashboard_layout = html.Div([
     dcc.Store(id='num-methods', storage_type='local')
 ])
 
-# Callbacks
+# -------------
+#   Callbacks
+# -------------
 
 # @app.callback([[Output('lib-dropdown-{}'.format(val+1), 'value') for val in range(max_methods)]],
 #               Output('method-values', 'data'),
@@ -776,122 +778,101 @@ def render_content(task):
                  {'label': 'F1-weighted', 'value': 'f1_weighted'}]]
 
 
+@app.callback(Output('method', 'children'),
+              Output('num-methods', 'data'),
+              Input('add-method', 'n_clicks'),
+              Input('delete-method', 'n_clicks'),
+              Input('clr-conf', 'n_clicks'),
+              State('method', 'children'),
+              State('num-methods', 'data'),)
+def show_methods(add_nclk, del_nclk, clr_nclk, curr_children, num_methods):
+    """ This function manages the number of methods visible at any time based on add/del clicks. """
+    # Get callback context to detect which button triggered it
+    num_methods = json.loads(num_methods)
+    ctx = callback_context
+    if not ctx.triggered:
+        if curr_children is None:
+            # print('init')   # Triggered when UI is initialized
+            return append_children_divs(1)
+        else:
+            # print('refresh')    # Triggered on page refresh/states change
+            return append_children_divs(num_methods)
+
+    else:
+        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+        if button_id == 'add-method':
+            # print('add')
+            el = get_method_div(len(curr_children) + 1)
+            curr_children.append(el)
+            return curr_children, json.dumps(len(curr_children))
+        elif button_id == 'delete-method':
+            # print('delete')
+            if len(curr_children) == 0:
+                return curr_children, json.dumps(0)
+            curr_children.pop()
+            return curr_children, json.dumps(len(curr_children))
+        elif button_id == 'clr-conf':
+            # print('clear')
+            return append_children_divs(1)
+        else:
+            raise PreventUpdate
+
+
 @app.callback(Output({'type': 'lib-dropdown', 'index': ALL}, 'value'),
               Output('method-values', 'data'),
               Input({'type': 'lib-dropdown', 'index': ALL}, 'value'),
+              Input('num-methods', 'data'),
               Input('clr-conf', 'n_clicks'),
-              State('method-values', 'data'),
-              State('num-methods', 'data'))
-def save_methods(lib_ddvalues, nclick, old_data, num_methods):
+              State('method-values', 'data'))
+def save_method_values(lib_ddvalues, num_methods, nclicks, old_data):
+    """ This function manages (save, load, refresh) the values of the different method fields (e.g. type, name,...). """
     ctx = callback_context
     print('call')
     #print(lib_ddvalues)
-    #print(ids)
+    #print(num_methods)
     #print(old_data)
-    #return 'other', json.loads({})
     if not ctx.triggered:
-        if old_data is None:
-            print('init')
-            # Triggered on first ui load
-            res = ['other']
-            print(res)
-            return res, json.dumps(res)
-        else:
-            # Triggered when changing tabs/restarting/calls from other functions that changed input states
-            print('loading json')
-            #print(old_data)
-            #print(num_methods)
+        raise PreventUpdate
+    else:
+        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+        if button_id == 'num-methods':
+            print('add sub clr')
             od = json.loads(old_data)
             num_methods = json.loads(num_methods)
-            #print(od)
-            if len(od) == num_methods:
-                print('equal')
-                res = list(od)
-            elif len(od) < num_methods:
+            if len(od) < num_methods:
                 print('larger')
-                res = od + ['other']
+                res = od + ['other'] * (num_methods-len(od))
             elif len(od) > num_methods:
                 print('smaller')
                 res = od[:num_methods]
             else:
                 raise PreventUpdate
-            print(res)
-            return res, json.dumps(res)
-
-    else:
-        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-        if button_id == 'clr-conf':
-            # Triggered by user click
-            res = ['other'] #* num_methods
-            print('clear')
-            print(res)
-            return res, json.dumps(res)
+        elif button_id == 'clr-conf':
+            print('its a clear')
+            res = ['other']
         else:
-            # Triggered when any value is changed in conf
-            if all(v is None for v in lib_ddvalues):
-                print('all are none')
-                res = json.loads(old_data)
+            if lib_ddvalues[0] is None:
+                if len(lib_ddvalues) > 1:
+                    print('its a refresh')
+                    res = json.loads(old_data)
+                else:
+                    print('its a clear type 2')
+                    if old_data is not None:
+                        res = json.loads(old_data)
+                    else:
+                        res = ['other']
             else:
                 res = lib_ddvalues
-            print('dump values')
-            #print(lib_ddvalues)
-            #print(old_data)
-            print(res)
-            return res, json.dumps(res)
+
+    return res, json.dumps(res)
 
 
-@app.callback(Output('method', 'children'),
-              Output('add-method', 'n_clicks'),
-              Output('num-methods', 'data'),
-              Input('add-method', 'n_clicks'),
-              Input('delete-method', 'n_clicks'),
-              State('method', 'children'),
-              State('add-method', 'n_clicks'),
-              State('num-methods', 'data'))
-def add_method(val, delete, children, n_clicks, old_nummethods):
-    """ This function manages the number of methods visible at any time based on add/del clicks. """
-    # Get callback context to detect which button triggered it
-    val = int(val)
-    n_clicks = int(n_clicks)
-    ctx = callback_context
-    if not ctx.triggered:
-        if old_nummethods is None:
-            # add_method n_clicks always starts at 1 to display the first method
-            children = []
-            for i in range(val):
-                el = get_method_div(i+1)
-                children.append(el)
-            return children, val, json.dumps(val)
-        else:
-            loaded_val = json.loads(old_nummethods)
-            # Since add_method n_clicks counts from 1 we do i+1 for the range
-            children = []
-            for i in range(loaded_val):
-                el = get_method_div(i+1)
-                children.append(el)
-            print('refresh')
-            return children, loaded_val, old_nummethods
-    else:
-        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-
-        if button_id == 'add-method':
-            children = []
-            for i in range(val):
-                el = get_method_div(i+1)
-                children.append(el)
-            print('add')
-            return children, val, json.dumps(val)
-
-        elif button_id == 'delete-method':
-            children = []
-            for i in range(n_clicks-1):
-                el = get_method_div(i+1)
-                children.append(el)
-            print('delete')
-            return children, n_clicks-1, json.dumps(n_clicks-1)
-
-        else:
-            raise PreventUpdate
+def append_children_divs(val):
+    children = []
+    for i in range(val):
+        el = get_method_div(i + 1)
+        children.append(el)
+    return children, json.dumps(val)
 
 
 def get_method_div(val):
@@ -917,7 +898,7 @@ def get_method_div(val):
                                             {'label': 'KarateClub', 'value': 'kk'},
                                             {'label': 'Other', 'value': 'other'}],
                                         #value='other',
-                                        persistence=True,
+                                        persistence=False,
                                     ),
                                 ],
                                 style={'width': '22%', 'padding-right': '4%'}
