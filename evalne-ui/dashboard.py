@@ -1,6 +1,7 @@
 import json
 import sys
 import dash
+import dash_bootstrap_components as dbc
 
 from app import app
 from dash import callback_context
@@ -10,26 +11,32 @@ from dash.exceptions import PreventUpdate
 from utils import *
 from collections import OrderedDict
 
-# TODO: How to persist/reset the method divs?
 # TODO: Make export conf actually export the data to a conf.ini file
 # TODO: Make run actually evaluate using conf file.
 # TODO: Make import work.
 
-max_methods = 5
+# TODO: Allow multiple selections for edge embedding method!!!
+# TODO: add quotes to separators/delimiters
+# TODO: for options that are lists, make sure to return '' if len is 0
 
-init_vals = OrderedDict({'task-dropdown': 'LP',
-                         'ee-dropdown': 'Avg',
+# TODO: must check that there are no None in the methods_dict
+# TODO: show a message when data has been exported/imported successfully e.g. use modal
+#  https://dash-bootstrap-components.opensource.faculty.ai/docs/components/modal/
+# TODO: the user should be able to define the conf storage path and execution path in a 'settings' window.
+
+init_vals = OrderedDict({'task-dropdown': 'lp',
+                         'ee-dropdown': 'average',
                          'ib-exprep': 5,
                          'ib-frace': 0.001,
                          'ib-rpnf': 5,
-                         'ib-fracn': '10, 50, 90',
+                         'ib-fracn': '10 50 90',
                          'ib-lpmodel': 'LogisticRegressionCV',
                          'ib-embdim': 128,
                          'ib-timeout': 0,
                          'ib-seed': 42,
                          'ib-trainfrac': 0.8,
                          'ib-validfrac': 0.9,
-                         'splitalg-dropdown': 'st',
+                         'splitalg-dropdown': 'spanning_tree',
                          'negsamp-dropdown': 'ow',
                          'ib-negratio': '1:1',
                          'ib-nwnames': '',
@@ -40,11 +47,11 @@ init_vals = OrderedDict({'task-dropdown': 'LP',
                          'ib-comment': '',
                          'nw-prep-checklist': ['rel', 'selfloops'],
                          'nw-prep-checklist2': [],
-                         'input-prep-delim': 'Comma',
+                         'input-prep-delim': '',
                          'baselines-checklist': [],
                          'baselines-checklist2': [],
-                         'neighbourhood-dropdown': 'inout',
-                         'maximize-dropdown': 'auc',
+                         'neighbourhood-dropdown': 'in out',
+                         'maximize-dropdown': 'auroc',
                          'scores-dropdown': 'all',
                          'curves-dropdown': 'roc',
                          'ib-precatk': ''})
@@ -55,15 +62,15 @@ method_init_vals = OrderedDict({'m-lib-dropdown': 'other',
                                 'm-opts': ['dir'],
                                 'm-cmd': '',
                                 'm-tune': '',
-                                'm-input-delim': 'Comma',
-                                'm-output-delim': 'Comma'})
+                                'm-input-delim': '',
+                                'm-output-delim': ''})
 
-maximize_opts = [{'label': 'AUC', 'value': 'auc'},
-                 {'label': 'F-score', 'value': 'fscore'},
-                 {'label': 'Precision', 'value': 'prec'},
-                 {'label': 'Recall', 'value': 'rec'},
-                 {'label': 'Accuracy', 'value': 'acc'},
-                 {'label': 'Fallout', 'value': 'fall'},
+maximize_opts = [{'label': 'AUROC', 'value': 'auroc'},
+                 {'label': 'F-score', 'value': 'f_score'},
+                 {'label': 'Precision', 'value': 'precision'},
+                 {'label': 'Recall', 'value': 'recall'},
+                 {'label': 'Accuracy', 'value': 'accuracy'},
+                 {'label': 'Fallout', 'value': 'fallout'},
                  {'label': 'Miss', 'value': 'miss'}]
 
 
@@ -120,10 +127,10 @@ dashboard_layout = html.Div([
                     html.Label(['Evaluation task:']),
                     dcc.Dropdown(
                         id='task-dropdown',
-                        options=[{'label': 'Link prediction', 'value': 'LP'},
-                                 {'label': 'Sign prediction', 'value': 'SP'},
-                                 {'label': 'Network reconstruction', 'value': 'NR'},
-                                 {'label': 'Node classification', 'value': 'NC'}],
+                        options=[{'label': 'Link prediction', 'value': 'lp'},
+                                 {'label': 'Sign prediction', 'value': 'sp'},
+                                 {'label': 'Network reconstruction', 'value': 'nr'},
+                                 {'label': 'Node classification', 'value': 'nc'}],
                         value=init_vals['task-dropdown'],
                         persistence=True,
                     ),
@@ -172,10 +179,10 @@ dashboard_layout = html.Div([
                     html.Label(['Edge embedding method:']),
                     dcc.Dropdown(
                         id='ee-dropdown',
-                        options=[{'label': 'Average', 'value': 'Avg'},
-                                 {'label': 'Hadamard', 'value': 'Had'},
-                                 {'label': 'Weighted L1', 'value': 'WL1'},
-                                 {'label': 'Weighted L2', 'value': 'WL2'}],
+                        options=[{'label': 'Average', 'value': 'average'},
+                                 {'label': 'Hadamard', 'value': 'hadamard'},
+                                 {'label': 'Weighted L1', 'value': 'weighted_l1'},
+                                 {'label': 'Weighted L2', 'value': 'weighted_l2'}],
                         value=init_vals['ee-dropdown'],
                         persistence=True,
                     )
@@ -265,8 +272,8 @@ dashboard_layout = html.Div([
                     html.Label(['Split algorithm:']),
                     dcc.Dropdown(
                         id='splitalg-dropdown',
-                        options=[{'label': 'Spanning tree', 'value': 'st'},
-                                 {'label': 'Random', 'value': 'rand'},
+                        options=[{'label': 'Spanning tree', 'value': 'spanning_tree'},
+                                 {'label': 'Random', 'value': 'random'},
                                  {'label': 'Naive', 'value': 'naive'},
                                  {'label': 'Fast', 'value': 'fast'},
                                  {'label': 'Timestamp', 'value': 'timestamp'}],
@@ -292,10 +299,10 @@ dashboard_layout = html.Div([
             html.Datalist(
                 id='negsamp-opts',
                 children=[
+                    html.Option(value="0.5:1"),
                     html.Option(value="1:1"),
-                    html.Option(value="1:2"),
                     html.Option(value="2:1"),
-                    html.Option(value="1:10"),
+                    html.Option(value="4:1"),
                     html.Option(value="10:1")
                 ]
             ),
@@ -443,16 +450,19 @@ dashboard_layout = html.Div([
                     html.Datalist(
                         id='delim-opts',
                         children=[
-                            html.Option(value='Blank'),
-                            html.Option(value='Tab'),
-                            html.Option(value='Comma'),
-                            html.Option(value='Semicolon'),
-                            html.Option(value='Bar')
+                            html.Option(value='\\s'),
+                            html.Option(value='\\t'),
+                            html.Option(value='\\n'),
+                            html.Option(value=','),
+                            html.Option(value=';'),
+                            html.Option(value=':'),
+                            html.Option(value='|'),
                         ]
                     ),
                     html.Label(['Preprocessed edgelist delimiter:']),
                     dcc.Input(id="input-prep-delim", className='input-box', type="text",
-                              value=init_vals['input-prep-delim'], list='delim-opts', persistence=True),
+                              placeholder="Insert delimiter...",
+                              list='delim-opts', persistence=True),
                 ],
                 style={'width': '30%'}
             ),
@@ -485,12 +495,12 @@ dashboard_layout = html.Div([
                     dcc.Checklist(
                         id='baselines-checklist',
                         options=[
-                            {'label': 'Common Neighbours', 'value': 'cn'},
-                            {'label': 'Jaccard Coefficient', 'value': 'jc'},
-                            {'label': 'Adamic Adar', 'value': 'aa'},
-                            {'label': 'Cosine Similarity', 'value': 'cs'},
-                            {'label': 'Resource Allocation', 'value': 'ra'},
-                            {'label': 'Preferential Attachment', 'value': 'pa'},
+                            {'label': 'Common Neighbours', 'value': 'common_neighbours'},
+                            {'label': 'Jaccard Coefficient', 'value': 'jaccard_coefficient'},
+                            {'label': 'Adamic Adar', 'value': 'adamic_adar_index'},
+                            {'label': 'Cosine Similarity', 'value': 'cosine_similarity'},
+                            {'label': 'Resource Allocation', 'value': 'resource_allocation_index'},
+                            {'label': 'Preferential Attachment', 'value': 'preferential_attachment'},
                         ],
                         value=init_vals['baselines-checklist'],
                         style={'display': 'grid'},
@@ -504,12 +514,12 @@ dashboard_layout = html.Div([
                     dcc.Checklist(
                         id='baselines-checklist2',
                         options=[
-                            {'label': 'LHN Index', 'value': 'lhn'},
-                            {'label': 'Topological Overlap', 'value': 'to'},
-                            {'label': 'Random Prediction', 'value': 'rand'},
+                            {'label': 'LHN Index', 'value': 'lhn_index'},
+                            {'label': 'Topological Overlap', 'value': 'topological_overlap'},
+                            {'label': 'Random Prediction', 'value': 'random_prediction'},
                             {'label': 'Katz exact', 'value': 'katz'},
-                            {'label': 'Katz approx', 'value': 'katza'},
-                            {'label': 'All Baselines', 'value': 'bl'},
+                            {'label': 'Katz approx', 'value': 'katz'},
+                            {'label': 'All Baselines', 'value': 'all_baselines'},
                         ],
                         value=init_vals['baselines-checklist2'],
                         style={'display': 'grid'},
@@ -525,7 +535,7 @@ dashboard_layout = html.Div([
                         id='neighbourhood-dropdown',
                         options=[{'label': 'In neighbourhood', 'value': 'in'},
                                  {'label': 'Out neighbourhood', 'value': 'out'},
-                                 {'label': 'In-Out', 'value': 'inout'}],
+                                 {'label': 'In-Out', 'value': 'in out'}],
                         value=init_vals['neighbourhood-dropdown'],
                         persistence=True,
                     ),
@@ -615,40 +625,6 @@ dashboard_layout = html.Div([
 #   Callbacks
 # -------------
 
-@app.callback([[Output(key, 'value') for key in init_vals.keys()]],
-              Output('conf-values', 'data'),
-              [[Input(key, 'value') for key in init_vals.keys()]],
-              Input('clr-conf', 'n_clicks'),
-              State('conf-values', 'data'))
-def refresh_config(data, nclick, old_data):
-    """ This function stores and loads data from a dcc.Store on page-refresh/tab-change/user-action. """
-    ctx = callback_context
-
-    if not ctx.triggered:
-        if old_data is None:
-            # Triggered on first ui load
-            res = [val for val in init_vals.values()]
-            return res, json.dumps(res)
-        else:
-            # Triggered when changing tabs/restarting
-            od = json.loads(old_data)
-            return od, old_data
-    else:
-        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-        if button_id == 'clr-conf':
-            # Triggered by user click
-            res = [val for val in init_vals.values()]
-            return res, json.dumps(res)
-        else:
-            # Triggered when any value is changed in conf
-            if button_id == 'task-dropdown':
-                if data[0] == 'NC':
-                    data[27] = 'f1_micro'
-                else:
-                    data[27] = 'auc'
-            return data, json.dumps(data)
-
-
 @app.callback(Output('run-eval', 'className'),
               Output('run-eval', 'children'),
               Input('btnUpdt-interval', 'n_intervals'))
@@ -662,8 +638,10 @@ def set_run_button_state(n_intervals):
 
 
 @app.callback(Output('run-eval', 'n_clicks'),
-              Input('run-eval', 'n_clicks'))
-def start_stop_eval(n_clicks):
+              Input('run-eval', 'n_clicks'),
+              State('conf-values', 'data'),
+              State('method-values', 'data'))
+def start_stop_eval(n_clicks, conf_vals, methods_vals):
     """ Function that starts/stops an evaluation when the Start/Stop button is pressed. """
     ctx = callback_context
 
@@ -676,10 +654,36 @@ def start_stop_eval(n_clicks):
             return n_clicks
         else:
             # Odd clicks start eval and set button to `Stop Evaluation`
+            conf_vals = json.loads(conf_vals)
+            methods_vals = json.loads(methods_vals)
             exec_path = sys.executable
-            conf_path = '/home/almara/Desktop/EvalNE/examples/dummy_conf.ini'
+            conf_path = './conf.ini'
+            # conf_path = '/home/almara/Desktop/EvalNE/examples/dummy_conf.ini'
+            conf_dict = dict(zip(init_vals.keys(), conf_vals))
+            methods_dict = dict(zip(method_init_vals.keys(), methods_vals))
+            export_config_file(conf_path, conf_dict, methods_dict)
             start_process('{} -m evalne {}'.format(exec_path, conf_path), True)
             return n_clicks
+
+
+@app.callback(Output('exp-conf', 'n_clicks'),
+              Input('exp-conf', 'n_clicks'),
+              State('conf-values', 'data'),
+              State('method-values', 'data'))
+def export_config(n_clicks, conf_vals, methods_vals):
+    """ This function is executed when the uses preses the export config button. """
+    ctx = callback_context
+
+    if not ctx.triggered:
+        raise PreventUpdate
+    else:
+        conf_vals = json.loads(conf_vals)
+        methods_vals = json.loads(methods_vals)
+        conf_path = './conf.ini'
+        conf_dict = dict(zip(init_vals.keys(), conf_vals))
+        methods_dict = dict(zip(method_init_vals.keys(), methods_vals))
+        export_config_file(conf_path, conf_dict, methods_dict)
+        return n_clicks
 
 
 @app.callback(Output('ob-trainfrac', 'children'),
@@ -718,7 +722,7 @@ def render_nodepairs_perc(frac):
                Input('task-dropdown', 'value'))
 def render_content(task):
     """ Function that updates the Dashboard elements and style based on the task to be evaluated. """
-    if task == 'LP' or task == 'SP':
+    if task == 'lp' or task == 'sp':
         return [{'width': '30%', 'padding-right': '5%'},                        # task
                 {'width': '30%', 'padding-right': '5%'},                        # exprep
                 {'display': 'none'},                                            # nr fracs
@@ -728,7 +732,7 @@ def render_content(task):
                 {'display': 'none'},
                 maximize_opts,
                 maximize_opts + [{'label': 'All', 'value': 'all'}]]
-    elif task == 'NR':
+    elif task == 'nr':
         return [{'width': '30%', 'padding-right': '5%'},                        # task
                 {'display': 'none'},                                            # exprep
                 {'width': '30%', 'padding-right': '5%'},                        # nr fracs
@@ -738,7 +742,7 @@ def render_content(task):
                 {'display': 'none'},
                 maximize_opts,
                 maximize_opts + [{'label': 'All', 'value': 'all'}]]
-    elif task == 'NC':
+    elif task == 'nc':
         return [{'width': '22%', 'padding-right': '4%'},                        # task
                 {'display': 'none'},                                            # exprep
                 {'display': 'none'},                                            # nr fracs
@@ -753,6 +757,40 @@ def render_content(task):
                  {'label': 'F1-micro', 'value': 'f1_micro'},
                  {'label': 'F1-macro', 'value': 'f1_macro'},
                  {'label': 'F1-weighted', 'value': 'f1_weighted'}]]
+
+
+@app.callback([[Output(key, 'value') for key in init_vals.keys()]],
+              Output('conf-values', 'data'),
+              [[Input(key, 'value') for key in init_vals.keys()]],
+              Input('clr-conf', 'n_clicks'),
+              State('conf-values', 'data'))
+def refresh_config(data, nclick, old_data):
+    """ This function stores and loads data from a dcc.Store on page-refresh/tab-change/user-action. """
+    ctx = callback_context
+
+    if not ctx.triggered:
+        if old_data is None:
+            # Triggered on first ui load
+            res = [val for val in init_vals.values()]
+            return res, json.dumps(res)
+        else:
+            # Triggered when changing tabs/restarting
+            od = json.loads(old_data)
+            return od, old_data
+    else:
+        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+        if button_id == 'clr-conf':
+            # Triggered by user click
+            res = [val for val in init_vals.values()]
+            return res, json.dumps(res)
+        else:
+            # Triggered when any value is changed in conf
+            if button_id == 'task-dropdown':
+                if data[0] == 'nc':
+                    data[27] = 'f1_micro'
+                else:
+                    data[27] = 'auroc'
+            return data, json.dumps(data)
 
 
 @app.callback(Output('method', 'children'),
@@ -803,8 +841,6 @@ def show_methods(add_nclk, del_nclk, clr_nclk, curr_children, num_methods):
               State('method-values', 'data'))
 def save_method_values(values, num_methods, nclicks, old_data):
     ctx = callback_context
-    print('call')
-    print(values)
     if not ctx.triggered:
         raise PreventUpdate
     else:
@@ -967,7 +1003,7 @@ def get_method_div(val):
                                         id={
                                             'index': val,
                                             'type': 'm-input-delim'
-                                        }, className='input-box', type="text",
+                                        }, className='input-box', type="text", placeholder="Insert delimiter...",
                                         list='delim-opts', persistence=False, debounce=True),
                                 ],
                                 style={'width': '22%', 'padding-right': '4%'}
@@ -979,7 +1015,7 @@ def get_method_div(val):
                                         id={
                                             'index': val,
                                             'type': 'm-output-delim'
-                                        }, className='input-box', type="text",
+                                        }, className='input-box', type="text", placeholder="Insert delimiter...",
                                         list='delim-opts', persistence=False, debounce=True),
                                 ],
                                 style={'width': '22%'}

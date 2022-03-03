@@ -35,7 +35,7 @@
 
 ## TODO ##
 
-* Make tab data persistent, for when tabs are switched
+* DONE Make tab data persistent, for when tabs are switched
 * Make run evaluation actually fill in conf file and execute evalne
 * Make import/export buttons work
 * DONE Fix button hoover
