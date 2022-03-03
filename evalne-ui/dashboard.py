@@ -49,6 +49,14 @@ init_vals = OrderedDict({'task-dropdown': 'LP',
                          'curves-dropdown': 'roc',
                          'ib-precatk': ''})
 
+method_init_vals = OrderedDict({'m-lib-dropdown': 'other',
+                                'm-name': '',
+                                'm-type-dropdown': 'ne',
+                                'm-opts': ['dir'],
+                                'm-cmd': '',
+                                'm-tune': '',
+                                'm-input-delim': 'Comma',
+                                'm-output-delim': 'Comma'})
 
 maximize_opts = [{'label': 'AUC', 'value': 'auc'},
                  {'label': 'F-score', 'value': 'fscore'},
@@ -602,41 +610,10 @@ dashboard_layout = html.Div([
     dcc.Store(id='num-methods', storage_type='local')
 ])
 
+
 # -------------
 #   Callbacks
 # -------------
-
-# @app.callback([[Output('lib-dropdown-{}'.format(val+1), 'value') for val in range(max_methods)]],
-#               Output('method-values', 'data'),
-#               [[Input('lib-dropdown-{}'.format(val+1), 'value') for val in range(max_methods)]],
-#               Input('clr-conf', 'n_clicks'),
-#               State('method-values', 'data'))
-# def save_methods(sa_list, nclick, old_data):
-#     ctx = callback_context
-#
-#     if not ctx.triggered:
-#         if old_data is None:
-#             print('init')
-#             # Triggered on first ui load
-#             res = ['other'] * max_methods
-#             return res, json.dumps(res)
-#         else:
-#             # Triggered when changing tabs/restarting
-#             print('loading json')
-#             od = json.loads(old_data)
-#             return od, old_data
-#     else:
-#         button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-#         if button_id == 'clr-conf':
-#             # Triggered by user click
-#             print('clear')
-#             res = ['other'] * max_methods
-#             return res, json.dumps(res)
-#         else:
-#             # Triggered when any value is changed in conf
-#             print('dump values')
-#             return sa_list, json.dumps(sa_list)
-
 
 @app.callback([[Output(key, 'value') for key in init_vals.keys()]],
               Output('conf-values', 'data'),
@@ -792,77 +769,79 @@ def show_methods(add_nclk, del_nclk, clr_nclk, curr_children, num_methods):
     ctx = callback_context
     if not ctx.triggered:
         if curr_children is None:
-            # print('init')   # Triggered when UI is initialized
+            # Triggered when UI is initialized
             return append_children_divs(1)
         else:
-            # print('refresh')    # Triggered on page refresh/states change
+            # Triggered on page refresh/states change
             return append_children_divs(num_methods)
 
     else:
         button_id = ctx.triggered[0]['prop_id'].split('.')[0]
         if button_id == 'add-method':
-            # print('add')
+            # Add new method div
             el = get_method_div(len(curr_children) + 1)
             curr_children.append(el)
             return curr_children, json.dumps(len(curr_children))
         elif button_id == 'delete-method':
-            # print('delete')
+            # Remove last method div
             if len(curr_children) == 0:
                 return curr_children, json.dumps(0)
             curr_children.pop()
             return curr_children, json.dumps(len(curr_children))
         elif button_id == 'clr-conf':
-            # print('clear')
+            # Reset to one method div
             return append_children_divs(1)
         else:
             raise PreventUpdate
 
 
-@app.callback(Output({'type': 'lib-dropdown', 'index': ALL}, 'value'),
+@app.callback([[Output({'type': key, 'index': ALL}, 'value') for key in method_init_vals.keys()]],
               Output('method-values', 'data'),
-              Input({'type': 'lib-dropdown', 'index': ALL}, 'value'),
+              [[Input({'type': key, 'index': ALL}, 'value') for key in method_init_vals.keys()]],
               Input('num-methods', 'data'),
               Input('clr-conf', 'n_clicks'),
               State('method-values', 'data'))
-def save_method_values(lib_ddvalues, num_methods, nclicks, old_data):
-    """ This function manages (save, load, refresh) the values of the different method fields (e.g. type, name,...). """
+def save_method_values(values, num_methods, nclicks, old_data):
     ctx = callback_context
     print('call')
-    #print(lib_ddvalues)
-    #print(num_methods)
-    #print(old_data)
+    print(values)
     if not ctx.triggered:
         raise PreventUpdate
     else:
         button_id = ctx.triggered[0]['prop_id'].split('.')[0]
         if button_id == 'num-methods':
-            print('add sub clr')
-            od = json.loads(old_data)
+            # Triggered when a method in added or removed
+            res = json.loads(old_data)
             num_methods = json.loads(num_methods)
-            if len(od) < num_methods:
-                print('larger')
-                res = od + ['other'] * (num_methods-len(od))
-            elif len(od) > num_methods:
-                print('smaller')
-                res = od[:num_methods]
+            if len(res[0]) < num_methods:
+                # Method added
+                init_values = [val for val in method_init_vals.values()]
+                for ind, val in enumerate(res):
+                    val.append(init_values[ind])
+            elif len(res[0]) > num_methods:
+                # Method removed
+                for val in res:
+                    val.pop()
             else:
                 raise PreventUpdate
         elif button_id == 'clr-conf':
-            print('its a clear')
-            res = ['other']
+            # Triggered when used presses clear conf button
+            res = [[val] for val in method_init_vals.values()]
         else:
-            if lib_ddvalues[0] is None:
-                if len(lib_ddvalues) > 1:
-                    print('its a refresh')
+            if values[0][0] is None:
+                # Triggered when page refreshed or ui init
+                if len(values[0]) > 1:
+                    # Page refresh
                     res = json.loads(old_data)
                 else:
-                    print('its a clear type 2')
+                    # UI init
                     if old_data is not None:
                         res = json.loads(old_data)
                     else:
-                        res = ['other']
+                        res = [[val] for val in method_init_vals.values()]
             else:
-                res = lib_ddvalues
+                # Triggered when method values are modified
+                res = values
 
     return res, json.dumps(res)
 
@@ -890,14 +869,13 @@ def get_method_div(val):
                                     dcc.Dropdown(
                                         id={
                                             'index': val,
-                                            'type': 'lib-dropdown'
-                                        }, #'lib-dropdown-{}'.format(val),
+                                            'type': 'm-lib-dropdown'
+                                        },
                                         options=[
                                             {'label': 'OpenNE', 'value': 'opne'},
                                             {'label': 'GEM', 'value': 'gem'},
                                             {'label': 'KarateClub', 'value': 'kk'},
                                             {'label': 'Other', 'value': 'other'}],
-                                        #value='other',
                                         persistence=False,
                                     ),
                                 ],
@@ -906,8 +884,12 @@ def get_method_div(val):
                             html.Div(
                                 children=[
                                     html.Label(['Method name:']),
-                                    dcc.Input(id='name-m-{}'.format(val), className='input-box', type='text',
-                                              placeholder="Insert method name...", persistence=True),
+                                    dcc.Input(
+                                        id={
+                                            'index': val,
+                                            'type': 'm-name'
+                                        }, className='input-box', type='text',
+                                        placeholder="Insert method name...", persistence=False, debounce=True),
                                 ],
                                 style={'width': '22%', 'padding-right': '4%'}
                             ),
@@ -915,12 +897,14 @@ def get_method_div(val):
                                 children=[
                                     html.Label(['Embedding type:']),
                                     dcc.Dropdown(
-                                        id='mtype-dropdown-{}'.format(val),
+                                        id={
+                                            'index': val,
+                                            'type': 'm-type-dropdown'
+                                        },
                                         options=[{'label': 'Node embedding', 'value': 'ne'},
                                                  {'label': 'Edge embedding', 'value': 'ee'},
                                                  {'label': 'End to end', 'value': 'e2e'}],
-                                        value='ne',
-                                        persistence=True,
+                                        persistence=False,
                                     ),
                                 ],
                                 style={'width': '22%', 'padding-right': '4%'}
@@ -929,14 +913,16 @@ def get_method_div(val):
                                 children=[
                                     html.Label(['Method input edgelist:']),
                                     dcc.Checklist(
-                                        id='opts-{}'.format(val),
+                                        id={
+                                            'index': val,
+                                            'type': 'm-opts'
+                                        },
                                         options=[
                                             {'label': 'Write weights', 'value': 'weights'},
                                             {'label': 'Write both dir', 'value': 'dir'},
                                         ],
-                                        value=['dir'],
                                         style={'display': 'grid'},
-                                        persistence=True,
+                                        persistence=False,
                                     ),
                                 ],
                                 style={'width': '22%'}
@@ -948,9 +934,14 @@ def get_method_div(val):
                     html.Div(
                         children=[
                             html.Label(['Method command line call:']),
-                            dcc.Input(id='cmd-m-{}'.format(val), className='input-box', type="text",
-                                      placeholder="Insert cmd call (e.g. ./venv/bin/python main.py --input {} --output {} --dim {})",
-                                      persistence=True),
+                            dcc.Input(
+                                id={
+                                    'index': val,
+                                    'type': 'm-cmd'
+                                }, className='input-box', type="text",
+                                placeholder=
+                                "Insert cmd call (e.g. ./venv/bin/python main.py --input {} --output {} --dim {})",
+                                persistence=False, debounce=True),
                         ],
                     ),
                     html.Br(),
@@ -958,26 +949,38 @@ def get_method_div(val):
                         children=[
                             html.Div(
                                 children=[
-                                    html.Label(['Tune hyperparameters:']),
-                                    dcc.Input(id='tune-m-{}'.format(val), className='input-box', type="text",
-                                              placeholder="Insert hyperparameters to tune (e.g. --p 0.5 1 --q 1 2)",
-                                              persistence=True),
+                                    html.Label(['Tune hyper-parameters:']),
+                                    dcc.Input(
+                                        id={
+                                            'index': val,
+                                            'type': 'm-tune'
+                                        }, className='input-box', type="text",
+                                        placeholder="Insert hyper-parameters to tune (e.g. --p 0.5 1 --q 1 2)",
+                                        persistence=False, debounce=True),
                                 ],
                                 style={'width': '48%', 'padding-right': '4%'}
                             ),
                             html.Div(
                                 children=[
                                     html.Label(['Input delimiter:']),
-                                    dcc.Input(id='input-method-delim-{}'.format(val), className='input-box',
-                                              type="text", value='Comma', list='delim-opts', persistence=True),
+                                    dcc.Input(
+                                        id={
+                                            'index': val,
+                                            'type': 'm-input-delim'
+                                        }, className='input-box', type="text",
+                                        list='delim-opts', persistence=False, debounce=True),
                                 ],
                                 style={'width': '22%', 'padding-right': '4%'}
                             ),
                             html.Div(
                                 children=[
                                     html.Label(['Output delimiter:']),
-                                    dcc.Input(id='output-method-delim-{}'.format(val), className='input-box',
-                                              type="text", value='Comma', list='delim-opts', persistence=True),
+                                    dcc.Input(
+                                        id={
+                                            'index': val,
+                                            'type': 'm-output-delim'
+                                        }, className='input-box', type="text",
+                                        list='delim-opts', persistence=False, debounce=True),
                                 ],
                                 style={'width': '22%'}
                             ),
