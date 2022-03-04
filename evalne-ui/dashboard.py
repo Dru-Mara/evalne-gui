@@ -11,21 +11,19 @@ from dash.exceptions import PreventUpdate
 from utils import *
 from collections import OrderedDict
 
-# TODO: Make export conf actually export the data to a conf.ini file
-# TODO: Make run actually evaluate using conf file.
 # TODO: Make import work.
 
-# TODO: Allow multiple selections for edge embedding method!!!
 # TODO: add quotes to separators/delimiters
-# TODO: for options that are lists, make sure to return '' if len is 0
 
-# TODO: must check that there are no None in the methods_dict
 # TODO: show a message when data has been exported/imported successfully e.g. use modal
 #  https://dash-bootstrap-components.opensource.faculty.ai/docs/components/modal/
 # TODO: the user should be able to define the conf storage path and execution path in a 'settings' window.
 
+# TODO: the conf values and descriptions in the conf.ini of evalne should be changed. better variable names and fix
+#  description issues. for NC we should use the 'lp_model' as the binary classifier.
+
 init_vals = OrderedDict({'task-dropdown': 'lp',
-                         'ee-dropdown': 'average',
+                         'ee-dropdown': ['average'],
                          'ib-exprep': 5,
                          'ib-frace': 0.001,
                          'ib-rpnf': 5,
@@ -183,8 +181,7 @@ dashboard_layout = html.Div([
                                  {'label': 'Hadamard', 'value': 'hadamard'},
                                  {'label': 'Weighted L1', 'value': 'weighted_l1'},
                                  {'label': 'Weighted L2', 'value': 'weighted_l2'}],
-                        value=init_vals['ee-dropdown'],
-                        persistence=True,
+                        value=init_vals['ee-dropdown'], multi=True, persistence=True,
                     )
                 ],
                 style={'width': '30%'},
@@ -213,7 +210,7 @@ dashboard_layout = html.Div([
                             html.Option(value="sklearn.svm.LinearSVC(C=1.0, kernel=’rbf’, degree=3)")
                         ]
                     ),
-                    html.Label(['Link prediction model:']),
+                    html.Label(id='lbl-lpmodel'),
                     dcc.Input(id="ib-lpmodel", className='input-box', type="text",
                               value=init_vals['ib-lpmodel'], list='lp-model-opts', persistence=True)
                 ],
@@ -654,12 +651,11 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals):
             return n_clicks
         else:
             # Odd clicks start eval and set button to `Stop Evaluation`
-            conf_vals = json.loads(conf_vals)
-            methods_vals = json.loads(methods_vals)
             exec_path = sys.executable
             conf_path = './conf.ini'
-            # conf_path = '/home/almara/Desktop/EvalNE/examples/dummy_conf.ini'
+            conf_vals = json.loads(conf_vals)
             conf_dict = dict(zip(init_vals.keys(), conf_vals))
+            methods_vals = json.loads(methods_vals)
             methods_dict = dict(zip(method_init_vals.keys(), methods_vals))
             export_config_file(conf_path, conf_dict, methods_dict)
             start_process('{} -m evalne {}'.format(exec_path, conf_path), True)
@@ -716,6 +712,7 @@ def render_nodepairs_perc(frac):
                Output('nc-nodefracs', 'style'),
                Output('nc-repperfrac', 'style'),
                Output('ee', 'style'),
+               Output('lbl-lpmodel', 'children'),
                Output('network-labelpaths-div', 'style'),
                Output('maximize-dropdown', 'options'),
                Output('scores-dropdown', 'options')],
@@ -729,6 +726,7 @@ def render_content(task):
                 {'display': 'none'},                                            # nc nodefracs
                 {'display': 'none'},                                            # nc repperfrac
                 {'width': '30%'},                                               # ee method
+                'Binary classifier:',
                 {'display': 'none'},
                 maximize_opts,
                 maximize_opts + [{'label': 'All', 'value': 'all'}]]
@@ -739,16 +737,18 @@ def render_content(task):
                 {'display': 'none'},                                            # nc nodefracs
                 {'display': 'none'},                                            # nc repperfrac
                 {'width': '30%'},                                               # ee method
+                'Binary classifier:',
                 {'display': 'none'},
                 maximize_opts,
                 maximize_opts + [{'label': 'All', 'value': 'all'}]]
     elif task == 'nc':
-        return [{'width': '22%', 'padding-right': '4%'},                        # task
+        return [{'width': '30%', 'padding-right': '5%'},                        # task
                 {'display': 'none'},                                            # exprep
                 {'display': 'none'},                                            # nr fracs
-                {'width': '22%', 'padding-right': '4%'},                        # nc nodefracs
-                {'width': '22%', 'padding-right': '4%'},                        # nc repperfrac
-                {'width': '22%'},                                               # ee method
+                {'width': '30%', 'padding-right': '5%'},                        # nc nodefracs
+                {'width': '30%'},                                               # nc repperfrac
+                {'display': 'none'},                                            # ee method
+                'Multi-label classifier:',
                 {'display': 'block'},
                 [{'label': 'F1-micro', 'value': 'f1_micro'},
                  {'label': 'F1-macro', 'value': 'f1_macro'},
@@ -882,6 +882,30 @@ def save_method_values(values, num_methods, nclicks, old_data):
     return res, json.dumps(res)
 
 
+@app.callback([Output({'type': 'emb-type-div', 'index': MATCH}, 'style'),
+               Output({'type': 'm-opts-div', 'index': MATCH}, 'style'),
+               Output({'type': 'm-tune-div', 'index': MATCH}, 'style'),
+               Output({'type': 'm-input-delim-div', 'index': MATCH}, 'style'),
+               Output({'type': 'm-output-delim-div', 'index': MATCH}, 'style')],
+              Input({'type': 'm-lib-dropdown', 'index': MATCH}, 'value'))
+def toggle_method_style(m_type):
+    if m_type:
+        if m_type == 'opne':
+            return [{'display': 'none'},
+                    {'display': 'none'},
+                    {'width': '100%'},
+                    {'display': 'none'},
+                    {'display': 'none'}]
+        else:
+            return [{'width': '22%', 'padding-right': '4%'},
+                    {'width': '22%'},
+                    {'width': '48%', 'padding-right': '4%'},
+                    {'width': '22%', 'padding-right': '4%'},
+                    {'width': '22%'}]
+    else:
+        raise PreventUpdate
+
+
 def append_children_divs(val):
     children = []
     for i in range(val):
@@ -930,6 +954,10 @@ def get_method_div(val):
                                 style={'width': '22%', 'padding-right': '4%'}
                             ),
                             html.Div(
+                                id={
+                                    'index': val,
+                                    'type': 'emb-type-div'
+                                },
                                 children=[
                                     html.Label(['Embedding type:']),
                                     dcc.Dropdown(
@@ -946,6 +974,10 @@ def get_method_div(val):
                                 style={'width': '22%', 'padding-right': '4%'}
                             ),
                             html.Div(
+                                id={
+                                    'index': val,
+                                    'type': 'm-opts-div'
+                                },
                                 children=[
                                     html.Label(['Method input edgelist:']),
                                     dcc.Checklist(
@@ -984,6 +1016,10 @@ def get_method_div(val):
                     html.Div(
                         children=[
                             html.Div(
+                                id={
+                                    'index': val,
+                                    'type': 'm-tune-div'
+                                },
                                 children=[
                                     html.Label(['Tune hyper-parameters:']),
                                     dcc.Input(
@@ -997,6 +1033,10 @@ def get_method_div(val):
                                 style={'width': '48%', 'padding-right': '4%'}
                             ),
                             html.Div(
+                                id={
+                                    'index': val,
+                                    'type': 'm-input-delim-div'
+                                },
                                 children=[
                                     html.Label(['Input delimiter:']),
                                     dcc.Input(
@@ -1009,6 +1049,10 @@ def get_method_div(val):
                                 style={'width': '22%', 'padding-right': '4%'}
                             ),
                             html.Div(
+                                id={
+                                    'index': val,
+                                    'type': 'm-output-delim-div'
+                                },
                                 children=[
                                     html.Label(['Output delimiter:']),
                                     dcc.Input(

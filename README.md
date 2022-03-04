@@ -36,8 +36,11 @@
 ## TODO ##
 
 * DONE Make tab data persistent, for when tabs are switched
-* Make run evaluation actually fill in conf file and execute evalne
-* Make import/export buttons work
+* DONE Make run evaluation actually fill in conf file and execute evalne
+* Make import button work
+* DONE Make export button work
+* DONE When exporting ensure methods with no name and cmd are ignored
+* DONE Change method options based on method type
 * DONE Fix button hoover
 * DONE Toggle Run Evaluation/Stop Evaluation on btn click
 * DONE Use interval object to keep Start/Stop button appearance consistent with eval state
