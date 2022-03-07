@@ -38,6 +38,7 @@
 * DONE Make tab data persistent, for when tabs are switched
 * DONE Make run evaluation actually fill in conf file and execute evalne
 * Make import button work
+* Add popup dialogs to show that data has been imported/exported/cleared
 * DONE Make export button work
 * DONE When exporting ensure methods with no name and cmd are ignored
 * DONE Change method options based on method type
@@ -48,8 +49,9 @@
 * Add monitoring plots
 * Fill in Runs tab
 * Collect in Results the evaluation outputs of previous runs
-* Ask for a folder path to track (where results are being stored) default to the evalne folder?
-
+* DONE Allow user to select evaluation path and pythonpath in settings menu.
+* The conf.ini values and descriptions in the conf.ini of evalne should be changed. 
+* Better variable names and fix description issues. for NC we should use the 'lp_model' as the binary classifier.
 
 ## About ##
 

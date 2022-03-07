@@ -7,6 +7,7 @@ from app import app
 from dash.dependencies import Input, Output
 from dash import dcc, State, html
 from runs import runs_layout
+from settings import settings_layout
 from results import results_layout
 from dashboard import dashboard_layout
 from monitoring import monitoring_layout
@@ -82,6 +83,12 @@ app.layout = html.Div([
                     className='custom-tab results-tab',
                     selected_className='custom-tab--selected'
                 ),
+                dcc.Tab(
+                    label='Settings',
+                    value='settings',
+                    className='custom-tab settings-tab',
+                    selected_className='custom-tab--selected'
+                ),
             ]),
         html.Div(id='tabs-content-classes', className='tabs-content')
     ], style={'display': 'flex'}),
@@ -108,6 +115,10 @@ def render_content(tab):
         return html.Div([
             html.H3('Results', className='header-title')
         ]), results_layout
+    elif tab == 'settings':
+        return html.Div([
+            html.H3('Settings', className='header-title')
+        ]), settings_layout
 
 
 if __name__ == '__main__':

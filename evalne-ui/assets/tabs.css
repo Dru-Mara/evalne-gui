@@ -55,6 +55,10 @@
     background-size: 20px;
 }
 
+.settings-tab {
+    background: #fafbfc url("icons/settings.png") no-repeat 90%;
+    background-size: 20px;
+}
 
 .row {
     border-left: 1px solid #ccc;

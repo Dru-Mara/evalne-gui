@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import dash
 import dash_bootstrap_components as dbc
@@ -13,14 +14,9 @@ from collections import OrderedDict
 
 # TODO: Make import work.
 
-# TODO: add quotes to separators/delimiters
-
 # TODO: show a message when data has been exported/imported successfully e.g. use modal
 #  https://dash-bootstrap-components.opensource.faculty.ai/docs/components/modal/
-# TODO: the user should be able to define the conf storage path and execution path in a 'settings' window.
 
-# TODO: the conf values and descriptions in the conf.ini of evalne should be changed. better variable names and fix
-#  description issues. for NC we should use the 'lp_model' as the binary classifier.
 
 init_vals = OrderedDict({'task-dropdown': 'lp',
                          'ee-dropdown': ['average'],
@@ -74,13 +70,21 @@ maximize_opts = [{'label': 'AUROC', 'value': 'auroc'},
 
 dashboard_layout = html.Div([
 
+    # --------------------------
+    #          Buttons
+    # --------------------------
     html.Br(),
     html.Br(),
     html.Div(
         children=[
             html.Div(
                 children=[
-                    html.Button('Import Config', id='imp-conf', className='btn btn-square btn-imp', n_clicks=0),
+                    dcc.Upload(
+                        id='upload-conf',
+                        children=[
+                            html.Button('Import Config', id='imp-conf', className='btn btn-square btn-imp', n_clicks=0),
+                        ]
+                    )
                 ]
             ),
             html.Div(
@@ -140,7 +144,7 @@ dashboard_layout = html.Div([
                 children=[
                     html.Label(['Experiment repetitions:']),
                     dcc.Input(id="ib-exprep", className='input-box', type="number", value=init_vals['ib-exprep'],
-                              min=0, persistence=True)
+                              min=1, persistence=True)
                 ],
                 style={'width': '30%', 'padding-right': '5%'},
             ),
@@ -167,7 +171,7 @@ dashboard_layout = html.Div([
                 children=[
                     html.Label(['Repetitions per node frac.:']),
                     dcc.Input(id="ib-rpnf", className='input-box', type="number",
-                              value=init_vals['ib-rpnf'], min=0, persistence=True)
+                              value=init_vals['ib-rpnf'], min=1, persistence=True)
                 ],
                 style={'display': 'none'},
             ),
@@ -612,9 +616,14 @@ dashboard_layout = html.Div([
     ),
     html.Br(),
     html.Br(),
+
+    # --------------------------
+    #       Data storage
+    # --------------------------
     dcc.Store(id='conf-values', storage_type='local'),
     dcc.Store(id='method-values', storage_type='local'),
-    dcc.Store(id='num-methods', storage_type='local')
+    dcc.Store(id='num-methods', storage_type='local'),
+    dcc.Store(id='settings-data', storage_type='local')
 ])
 
 
@@ -637,8 +646,9 @@ def set_run_button_state(n_intervals):
 @app.callback(Output('run-eval', 'n_clicks'),
               Input('run-eval', 'n_clicks'),
               State('conf-values', 'data'),
-              State('method-values', 'data'))
-def start_stop_eval(n_clicks, conf_vals, methods_vals):
+              State('method-values', 'data'),
+              State('settings-data', 'data'))
+def start_stop_eval(n_clicks, conf_vals, methods_vals, settings_data):
     """ Function that starts/stops an evaluation when the Start/Stop button is pressed. """
     ctx = callback_context
 
@@ -651,15 +661,48 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals):
             return n_clicks
         else:
             # Odd clicks start eval and set button to `Stop Evaluation`
-            exec_path = sys.executable
-            conf_path = './conf.ini'
+            settings_data = json.loads(settings_data)
+            print(settings_data)
+            if settings_data[0] == '':
+                exec_path = sys.executable
+            else:
+                exec_path = settings_data[0]
+            if settings_data[1] == '':
+                eval_path = os.getcwd()
+            else:
+                eval_path = settings_data[1]
+            ini_path = os.path.join(eval_path, 'conf.ini')
+            print(exec_path)
+            print(eval_path)
+
+            # Load config data
             conf_vals = json.loads(conf_vals)
             conf_dict = dict(zip(init_vals.keys(), conf_vals))
             methods_vals = json.loads(methods_vals)
             methods_dict = dict(zip(method_init_vals.keys(), methods_vals))
-            export_config_file(conf_path, conf_dict, methods_dict)
-            start_process('{} -m evalne {}'.format(exec_path, conf_path), True)
+
+            # Export conf.ini and run evaluation
+            export_config_file(ini_path, conf_dict, methods_dict)
+            start_process('{} -m evalne {}'.format(exec_path, ini_path), eval_path, True)
             return n_clicks
+
+
+@app.callback(Output('imp-conf', 'n_clicks'),
+              Input('imp-conf', 'n_clicks'),
+              Input("upload-conf", "contents"),
+              Input("upload-conf", "filename"),
+              State('conf-values', 'data'),
+              State('method-values', 'data'))
+def import_config(n_clicks, contents, filename, conf_vals, methods_vals):
+    """ This function is executed when the user preses the import config button. """
+    ctx = callback_context
+
+    if not ctx.triggered:
+        raise PreventUpdate
+    else:
+        if contents is not None:
+            import_config_file(contents, filename)
+        return n_clicks
 
 
 @app.callback(Output('exp-conf', 'n_clicks'),
@@ -667,7 +710,7 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals):
               State('conf-values', 'data'),
               State('method-values', 'data'))
 def export_config(n_clicks, conf_vals, methods_vals):
-    """ This function is executed when the uses preses the export config button. """
+    """ This function is executed when the user preses the export config button. """
     ctx = callback_context
 
     if not ctx.triggered:
