@@ -10,54 +10,14 @@ from dash.dependencies import Input, Output
 from dash import dcc, State, html, ALL, MATCH
 from dash.exceptions import PreventUpdate
 from utils import *
-from collections import OrderedDict
+from init_values import *
+
 
 # TODO: Make import work.
 
 # TODO: show a message when data has been exported/imported successfully e.g. use modal
 #  https://dash-bootstrap-components.opensource.faculty.ai/docs/components/modal/
 
-
-init_vals = OrderedDict({'task-dropdown': 'lp',
-                         'ee-dropdown': ['average'],
-                         'ib-exprep': 5,
-                         'ib-frace': 0.001,
-                         'ib-rpnf': 5,
-                         'ib-fracn': '10 50 90',
-                         'ib-lpmodel': 'LogisticRegressionCV',
-                         'ib-embdim': 128,
-                         'ib-timeout': 0,
-                         'ib-seed': 42,
-                         'ib-trainfrac': 0.8,
-                         'ib-validfrac': 0.9,
-                         'splitalg-dropdown': 'spanning_tree',
-                         'negsamp-dropdown': 'ow',
-                         'ib-negratio': '1:1',
-                         'ib-nwnames': '',
-                         'network-paths': '',
-                         'network-nodelabels': '',
-                         'network-types': 'undir',
-                         'ib-separator': '',
-                         'ib-comment': '',
-                         'nw-prep-checklist': ['rel', 'selfloops'],
-                         'nw-prep-checklist2': [],
-                         'input-prep-delim': '',
-                         'baselines-checklist': [],
-                         'baselines-checklist2': [],
-                         'neighbourhood-dropdown': 'in out',
-                         'maximize-dropdown': 'auroc',
-                         'scores-dropdown': 'all',
-                         'curves-dropdown': 'roc',
-                         'ib-precatk': ''})
-
-method_init_vals = OrderedDict({'m-lib-dropdown': 'other',
-                                'm-name': '',
-                                'm-type-dropdown': 'ne',
-                                'm-opts': ['dir'],
-                                'm-cmd': '',
-                                'm-tune': '',
-                                'm-input-delim': '',
-                                'm-output-delim': ''})
 
 maximize_opts = [{'label': 'AUROC', 'value': 'auroc'},
                  {'label': 'F-score', 'value': 'f_score'},
@@ -224,7 +184,7 @@ dashboard_layout = html.Div([
                 children=[
                     html.Label(['Embedding dimensionality:']),
                     dcc.Input(id="ib-embdim", className='input-box', type="number", value=init_vals['ib-embdim'],
-                              min=0, persistence=True),
+                              min=1, persistence=True),
                 ],
                 style={'width': '22%', 'padding-right': '4%'}
             ),
@@ -687,22 +647,26 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals, settings_data):
             return n_clicks
 
 
-@app.callback(Output('imp-conf', 'n_clicks'),
-              Input('imp-conf', 'n_clicks'),
-              Input("upload-conf", "contents"),
-              Input("upload-conf", "filename"),
-              State('conf-values', 'data'),
-              State('method-values', 'data'))
-def import_config(n_clicks, contents, filename, conf_vals, methods_vals):
-    """ This function is executed when the user preses the import config button. """
-    ctx = callback_context
-
-    if not ctx.triggered:
-        raise PreventUpdate
-    else:
-        if contents is not None:
-            import_config_file(contents, filename)
-        return n_clicks
+# @app.callback(Output('imp-conf', 'n_clicks'),
+#               Input('imp-conf', 'n_clicks'),
+#               Input("upload-conf", "contents"),
+#               Input("upload-conf", "filename"),
+#               State('conf-values', 'data'),
+#               State('method-values', 'data'))
+# def import_config(n_clicks, contents, filename, conf_vals, methods_vals):
+#     """ This function is executed when the user preses the import config button. """
+#     ctx = callback_context
+#
+#     if not ctx.triggered:
+#         raise PreventUpdate
+#     else:
+#         if contents is not None:
+#             conf_vals, method_vals = import_config_file(contents, filename)
+#             print('From import: ')
+#             print(conf_vals)
+#             print(method_vals)
+#             print('------------')
+#         return n_clicks
 
 
 @app.callback(Output('exp-conf', 'n_clicks'),
@@ -806,11 +770,11 @@ def render_content(task):
               Output('conf-values', 'data'),
               [[Input(key, 'value') for key in init_vals.keys()]],
               Input('clr-conf', 'n_clicks'),
+              Input('upload-conf', 'contents'),
               State('conf-values', 'data'))
-def refresh_config(data, nclick, old_data):
+def refresh_config(data, nclick, upload, old_data):
     """ This function stores and loads data from a dcc.Store on page-refresh/tab-change/user-action. """
     ctx = callback_context
-
     if not ctx.triggered:
         if old_data is None:
             # Triggered on first ui load
@@ -826,6 +790,9 @@ def refresh_config(data, nclick, old_data):
             # Triggered by user click
             res = [val for val in init_vals.values()]
             return res, json.dumps(res)
+        elif button_id == 'upload-conf':
+            conf_vals = get_config_vals(upload)
+            return conf_vals, json.dumps(conf_vals)
         else:
             # Triggered when any value is changed in conf
             if button_id == 'task-dropdown':
@@ -841,9 +808,10 @@ def refresh_config(data, nclick, old_data):
               Input('add-method', 'n_clicks'),
               Input('delete-method', 'n_clicks'),
               Input('clr-conf', 'n_clicks'),
+              Input('upload-conf', 'contents'),
               State('method', 'children'),
               State('num-methods', 'data'),)
-def show_methods(add_nclk, del_nclk, clr_nclk, curr_children, num_methods):
+def show_methods(add_nclk, del_nclk, clr_nclk, upload, curr_children, num_methods):
     """ This function manages the number of methods visible at any time based on add/del clicks. """
     # Get callback context to detect which button triggered it
     num_methods = json.loads(num_methods)
@@ -872,6 +840,8 @@ def show_methods(add_nclk, del_nclk, clr_nclk, curr_children, num_methods):
         elif button_id == 'clr-conf':
             # Reset to one method div
             return append_children_divs(1)
+        elif button_id == 'upload-conf':
+            return append_children_divs(get_num_methods(upload))
         else:
             raise PreventUpdate
 
@@ -881,8 +851,9 @@ def show_methods(add_nclk, del_nclk, clr_nclk, curr_children, num_methods):
               [[Input({'type': key, 'index': ALL}, 'value') for key in method_init_vals.keys()]],
               Input('num-methods', 'data'),
               Input('clr-conf', 'n_clicks'),
+              Input('upload-conf', 'contents'),
               State('method-values', 'data'))
-def save_method_values(values, num_methods, nclicks, old_data):
+def save_method_values(values, num_methods, nclicks, upload, old_data):
     ctx = callback_context
     if not ctx.triggered:
         raise PreventUpdate
@@ -906,6 +877,8 @@ def save_method_values(values, num_methods, nclicks, old_data):
         elif button_id == 'clr-conf':
             # Triggered when used presses clear conf button
             res = [[val] for val in method_init_vals.values()]
+        elif button_id == 'upload-conf':
+            res = get_config_methods(upload)
         else:
             if values[0][0] is None:
                 # Triggered when page refreshed or ui init

@@ -6,6 +6,7 @@ import base64
 import configparser
 import numpy as np
 from subprocess import Popen
+from init_values import init_vals
 from collections import OrderedDict
 
 
@@ -61,36 +62,52 @@ def search_process(process_name):
     return None
 
 
-def import_config_file(contents, filename):
+def import_config_file(contents):
+    """ Imports data from a config file. For options that are left blank, default values are used. """
     # Parse the contents of the input file
     content_type, content_string = contents.split(",")
     decoded = base64.b64decode(content_string)
     conf = io.StringIO(decoded.decode('utf-8'))
 
-    #from evalne.evaluation.pipeline import EvalSetup
-    #setup = EvalSetup(conf)
-
     # Create a configparser and read the file
     config = configparser.ConfigParser()
     config.read_file(conf)
 
-    print(config.get('GENERAL', 'task'))
+    return config
+
+
+def get_config_vals(contents):
+    # Read the config file
+    config = import_config_file(contents)
+
+    # Parse baselines
+    bl_1, bl_2 = parse_bl(config.get('BASELINES', 'lp_baselines'))
 
     conf_vals = OrderedDict({'task-dropdown': config.get('GENERAL', 'task'),
-                             'ee-dropdown': getlist('GENERAL', 'edge_embedding_methods', str),
-                             'ib-exprep': config.getint('GENERAL', 'lp_num_edge_splits'),
-                             'ib-frace': config.getfloat('GENERAL', 'nr_edge_samp_frac'),
-                             'ib-rpnf': config.getint('GENERAL', 'nc_num_node_splits'),
+                             'ee-dropdown': parse_list(
+                                 config.get('GENERAL', 'edge_embedding_methods'), init_vals['ee-dropdown']),
+                             'ib-exprep': parse_val(
+                                 config.get('GENERAL', 'lp_num_edge_splits'), init_vals['ib-exprep'], int),
+                             'ib-frace': parse_val(
+                                 config.get('GENERAL', 'nr_edge_samp_frac'), init_vals['ib-frace'], float),
+                             'ib-rpnf': parse_val(
+                                 config.get('GENERAL', 'nc_num_node_splits'), init_vals['ib-rpnf'], int),
                              'ib-fracn': config.get('GENERAL', 'nc_node_fracs'),
                              'ib-lpmodel': config.get('GENERAL', 'lp_model'),
-                             'ib-embdim': config.get('GENERAL', 'embed_dim'),       # process
-                             'ib-timeout': config.getint('GENERAL', 'timeout'),     # process
-                             'ib-seed': config.get('GENERAL', 'seed'),              # process
-                             'ib-trainfrac': config.getfloat('EDGESPLIT', 'traintest_frac'),
-                             'ib-validfrac': config.getfloat('EDGESPLIT', 'trainvalid_frac'),
+                             'ib-embdim': parse_val(
+                                 config.get('GENERAL', 'embed_dim'), init_vals['ib-embdim'], int),
+                             'ib-timeout': parse_val(
+                                 config.get('GENERAL', 'timeout'), init_vals['ib-timeout'], int),
+                             'ib-seed': parse_val(
+                                 config.get('GENERAL', 'seed'), init_vals['ib-seed'], int),
+                             'ib-trainfrac': parse_val(
+                                 config.get('EDGESPLIT', 'traintest_frac'), init_vals['ib-trainfrac'], float),
+                             'ib-validfrac': parse_val(
+                                 config.get('EDGESPLIT', 'trainvalid_frac'), init_vals['ib-validfrac'], float),
                              'splitalg-dropdown': config.get('EDGESPLIT', 'split_alg'),
                              'negsamp-dropdown': 'ow' if config.getboolean('EDGESPLIT', 'owa') else 'cw',
-                             'ib-negratio': config.get('EDGESPLIT', 'fe_ratio'),
+                             'ib-negratio': '1:1' if config.get('EDGESPLIT', 'fe_ratio') == ''
+                             else '{}:1'.format(config.get('EDGESPLIT', 'fe_ratio')),
                              'ib-nwnames': config.get('NETWORKS', 'names'),
                              'network-paths': config.get('NETWORKS', 'inpaths'),
                              'network-nodelabels': config.get('NETWORKS', 'labelpaths'),
@@ -102,24 +119,102 @@ def import_config_file(contents, filename):
                              'nw-prep-checklist2': ['save' if config.getboolean('PREPROCESSING', 'save_prep_nw') else '',
                                                     'stats' if config.getboolean('PREPROCESSING', 'write_stats') else ''],
                              'input-prep-delim': config.get('PREPROCESSING', 'delimiter'),
-                             'baselines-checklist': getlist('BASELINES', 'lp_baselines', str),      # TODO! how to split this
-                             'baselines-checklist2': getlist('BASELINES', 'lp_baselines', str),     # TODO! how to split this
+                             'baselines-checklist': bl_1,
+                             'baselines-checklist2': bl_2,
                              'neighbourhood-dropdown': config.get('BASELINES', 'neighbourhood'),
                              'maximize-dropdown': config.get('REPORT', 'maximize'),
                              'scores-dropdown': config.get('REPORT', 'scores'),
                              'curves-dropdown': config.get('REPORT', 'curves'),
                              'ib-precatk': config.get('REPORT', 'precatk_vals')})
 
-    method_vals = OrderedDict({'m-lib-dropdown': 'other',
-                               'm-name': '',
-                               'm-type-dropdown': 'ne',
-                               'm-opts': ['dir'],
-                               'm-cmd': '',
-                               'm-tune': '',
-                               'm-input-delim': '',
-                               'm-output-delim': ''})
+    return [val for val in conf_vals.values()]
 
-    return 0
+
+def get_config_methods(contents):
+    # Read the config file
+    config = import_config_file(contents)
+
+    num_other_methods = len(config.get('OTHER METHODS', 'names_other').split())
+    tune_params = config.get('OTHER METHODS', 'tune_params_other').split('\n')
+    tune_params.extend([''] * (num_other_methods - len(tune_params)))
+
+    method_vals = OrderedDict({'m-lib-dropdown': ['other'] * num_other_methods,
+                               'm-name': config.get('OTHER METHODS', 'names_other').split(),
+                               'm-type-dropdown': config.get('OTHER METHODS', 'embtype_other').split(),
+                               'm-opts': parse_opts(config.get('OTHER METHODS', 'write_weights_other'),
+                                                    config.get('OTHER METHODS', 'write_dir_other')),
+                               'm-cmd': config.get('OTHER METHODS', 'methods_other').split('\n'),
+                               'm-tune': tune_params,
+                               'm-input-delim': config.get('OTHER METHODS', 'input_delim_other').split(),
+                               'm-output-delim': config.get('OTHER METHODS', 'output_delim_other').split()})
+
+    # Add the opne methods
+    num_opne_methods = len(config.get('OPENNE METHODS', 'names_opne').split())
+    tune_opne = config.get('OPENNE METHODS', 'tune_params_opne').split('\n')
+    tune_opne.extend([''] * (num_opne_methods - len(tune_opne)))
+
+    method_vals['m-lib-dropdown'].extend(['opne'] * num_opne_methods)
+    method_vals['m-name'].extend(config.get('OPENNE METHODS', 'names_opne').split())
+    method_vals['m-type-dropdown'].extend(['ne'] * num_opne_methods)
+    method_vals['m-opts'].extend([('', '') for val in range(num_opne_methods)])
+    method_vals['m-cmd'].extend(config.get('OPENNE METHODS', 'methods_opne').split('\n'))
+    method_vals['m-tune'].extend(tune_opne)
+    method_vals['m-input-delim'].extend([' '] * num_opne_methods)
+    method_vals['m-output-delim'].extend([' '] * num_opne_methods)
+
+    return [val for val in method_vals.values()]
+
+
+def get_num_methods(contents):
+    # Read the config file
+    config = import_config_file(contents)
+    num_methods = len(config.get('OTHER METHODS', 'names_other').split()) + \
+                  len(config.get('OPENNE METHODS', 'names_opne').split())
+    return num_methods
+
+
+def parse_opts(str_weights, str_dir):
+    l1 = str_weights.lower().split()
+    l2 = str_dir.lower().split()
+    if len(l1) == 0:
+        res = []
+    else:
+        for i in range(len(l1)):
+            l1[i] = 'weights' if l1[i] == 'true' else ''
+            l2[i] = 'dir' if l1[i] == 'true' else ''
+    res = list(zip(l1, l2))
+    return res
+
+
+def parse_bl(str_val):
+    """ Parse the baselines string into two lists with the appropriate methods. If katz includes a numerical value
+     it will also add that as a method which is incorrect. """
+    lst = str_val.split()
+    lst1 = []
+    lst2 = []
+    for l in lst:
+        if 'common' in l or 'jaccard' in l or 'adamic' in l or 'cosine' in l or 'resource' in l or 'preferential' in l:
+            lst1.append(l)
+        else:
+            lst2.append(l)
+    return lst1, lst2
+
+
+def parse_val(str_val, default_val, dtype):
+    if str_val == '' or str_val.lower() == 'none':
+        res = default_val
+    else:
+        res = dtype(str_val)
+    return res
+
+
+def parse_list(str_list, default_val, dtype=str):
+    lst = str_list.split()
+    if len(lst) == 0 or lst[0] == '' or lst[0] == 'None':
+        res = default_val
+    else:
+        res = list(map(dtype, lst))
+    return res
 
 
 def export_config_file(conf_path, conf_dict, methods_dict):
@@ -173,7 +268,12 @@ def export_config_file(conf_path, conf_dict, methods_dict):
 def get_node_fracs(conf_dict):
     """ For NC tasks converts % of train nodes to a fraction in [0-1). Returns an empty string for other tasks. """
     if conf_dict['task-dropdown'] == 'nc':
-        aux = [str(int(val) / 100) for val in conf_dict['ib-fracn'].split()]
+        aux = []
+        for val in conf_dict['ib-fracn'].split():
+            if int(val) > 1.0:
+                aux.append(str(int(val) / 100))
+            else:
+                aux.append(val)
         res = ' '.join(aux)
     else:
         res = ''
