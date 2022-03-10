@@ -137,7 +137,7 @@ def get_config_methods(contents):
     config = import_config_file(contents)
 
     num_other_methods = len(config.get('OTHER METHODS', 'names_other').split())
-    tune_params = config.get('OTHER METHODS', 'tune_params_other').split('\n')
+    tune_params = pop_empty_line(config.get('OTHER METHODS', 'tune_params_other').split('\n'))
     tune_params.extend([''] * (num_other_methods - len(tune_params)))
 
     method_vals = OrderedDict({'m-lib-dropdown': ['other'] * num_other_methods,
@@ -145,26 +145,32 @@ def get_config_methods(contents):
                                'm-type-dropdown': config.get('OTHER METHODS', 'embtype_other').split(),
                                'm-opts': parse_opts(config.get('OTHER METHODS', 'write_weights_other'),
                                                     config.get('OTHER METHODS', 'write_dir_other')),
-                               'm-cmd': config.get('OTHER METHODS', 'methods_other').split('\n'),
+                               'm-cmd': pop_empty_line(config.get('OTHER METHODS', 'methods_other').split('\n')),
                                'm-tune': tune_params,
                                'm-input-delim': config.get('OTHER METHODS', 'input_delim_other').split(),
                                'm-output-delim': config.get('OTHER METHODS', 'output_delim_other').split()})
 
     # Add the opne methods
     num_opne_methods = len(config.get('OPENNE METHODS', 'names_opne').split())
-    tune_opne = config.get('OPENNE METHODS', 'tune_params_opne').split('\n')
+    tune_opne = pop_empty_line(config.get('OPENNE METHODS', 'tune_params_opne').split('\n'))
     tune_opne.extend([''] * (num_opne_methods - len(tune_opne)))
 
     method_vals['m-lib-dropdown'].extend(['opne'] * num_opne_methods)
     method_vals['m-name'].extend(config.get('OPENNE METHODS', 'names_opne').split())
     method_vals['m-type-dropdown'].extend(['ne'] * num_opne_methods)
     method_vals['m-opts'].extend([('', '') for val in range(num_opne_methods)])
-    method_vals['m-cmd'].extend(config.get('OPENNE METHODS', 'methods_opne').split('\n'))
+    method_vals['m-cmd'].extend(pop_empty_line(config.get('OPENNE METHODS', 'methods_opne').split('\n')))
     method_vals['m-tune'].extend(tune_opne)
     method_vals['m-input-delim'].extend([' '] * num_opne_methods)
     method_vals['m-output-delim'].extend([' '] * num_opne_methods)
 
     return [val for val in method_vals.values()]
+
+
+def pop_empty_line(lst):
+    if lst[-1] == '':
+        return lst[:-1]
+    return lst
 
 
 def get_num_methods(contents):

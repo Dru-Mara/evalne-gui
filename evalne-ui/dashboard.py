@@ -597,16 +597,21 @@ dashboard_layout = html.Div([
 
 @app.callback(Output("modal-sm", "is_open"),
               Output("modal-sm", "children"),
-              #Input("imp-conf", "n_clicks"),
               Input("exp-conf", "n_clicks"),
-              #Input("clr-conf", "n_clicks"),
+              Input("clr-conf", "n_clicks"),
               State("modal-sm", "is_open"))
-def toggle_modal(n1, is_open):
-    if n1:
-        return not is_open, [
-            dbc.ModalHeader(dbc.ModalTitle("Config exported successfully!"), close_button=False)]
-    return is_open, [
-        dbc.ModalHeader(dbc.ModalTitle("Config exported successfully!"), close_button=False)]
+def toggle_modal(n1, n2, is_open):
+    ctx = callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+    else:
+        button_id = ctx.triggered[0]['prop_id'].split('.')[0]
+        if button_id == 'exp-conf':
+            return not is_open, [dbc.ModalHeader(dbc.ModalTitle("Config exported successfully!"), close_button=False)]
+        elif button_id == 'clr-conf':
+            return not is_open, [dbc.ModalHeader(dbc.ModalTitle("Config cleared successfully!"), close_button=False)]
+        else:
+            raise PreventUpdate
 
 
 @app.callback(Output('run-eval', 'className'),
