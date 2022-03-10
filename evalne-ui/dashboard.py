@@ -30,16 +30,12 @@ dashboard_layout = html.Div([
     # --------------------------
     #          Buttons
     # --------------------------
-    # dbc.Modal(
-    #     [
-    #         dbc.ModalHeader(dbc.ModalTitle("Header")),
-    #         dbc.ModalBody("A small modal."),
-    #     ],
-    #     id="modal-sm",
-    #     size="sm",
-    #     is_open=False,
-    #     fullscreen=True,
-    # ),
+    dbc.Modal(
+        id="modal-sm",
+        size="sm",
+        is_open=False,
+        fullscreen=True,
+    ),
 
     html.Br(),
     html.Br(),
@@ -599,15 +595,18 @@ dashboard_layout = html.Div([
 #   Callbacks
 # -------------
 
-# @app.callback(
-#     Output("modal-sm", "is_open"),
-#     Input("clr-conf", "n_clicks"),
-#     State("modal-sm", "is_open"),
-# )
-# def toggle_modal(n1, is_open):
-#     if n1:
-#         return not is_open
-#     return is_open
+@app.callback(Output("modal-sm", "is_open"),
+              Output("modal-sm", "children"),
+              #Input("imp-conf", "n_clicks"),
+              Input("exp-conf", "n_clicks"),
+              #Input("clr-conf", "n_clicks"),
+              State("modal-sm", "is_open"))
+def toggle_modal(n1, is_open):
+    if n1:
+        return not is_open, [
+            dbc.ModalHeader(dbc.ModalTitle("Config exported successfully!"), close_button=False)]
+    return is_open, [
+        dbc.ModalHeader(dbc.ModalTitle("Config exported successfully!"), close_button=False)]
 
 
 @app.callback(Output('run-eval', 'className'),
@@ -811,7 +810,6 @@ def refresh_config(data, nclick, upload, old_data):
 def show_methods(add_nclk, del_nclk, clr_nclk, upload, curr_children, num_methods):
     """ This function manages the number of methods visible at any time based on add/del clicks. """
     # Get callback context to detect which button triggered it
-    num_methods = json.loads(num_methods)
     ctx = callback_context
     if not ctx.triggered:
         if curr_children is None:
@@ -819,6 +817,7 @@ def show_methods(add_nclk, del_nclk, clr_nclk, upload, curr_children, num_method
             return append_children_divs(1)
         else:
             # Triggered on page refresh/states change
+            num_methods = json.loads(num_methods) if num_methods is not None else 1
             return append_children_divs(num_methods)
 
     else:
