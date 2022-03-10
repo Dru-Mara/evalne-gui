@@ -12,9 +12,6 @@ from dash.exceptions import PreventUpdate
 from utils import *
 from init_values import *
 
-
-# TODO: Make import work.
-
 # TODO: show a message when data has been exported/imported successfully e.g. use modal
 #  https://dash-bootstrap-components.opensource.faculty.ai/docs/components/modal/
 
@@ -33,6 +30,17 @@ dashboard_layout = html.Div([
     # --------------------------
     #          Buttons
     # --------------------------
+    # dbc.Modal(
+    #     [
+    #         dbc.ModalHeader(dbc.ModalTitle("Header")),
+    #         dbc.ModalBody("A small modal."),
+    #     ],
+    #     id="modal-sm",
+    #     size="sm",
+    #     is_open=False,
+    #     fullscreen=True,
+    # ),
+
     html.Br(),
     html.Br(),
     html.Div(
@@ -591,6 +599,17 @@ dashboard_layout = html.Div([
 #   Callbacks
 # -------------
 
+# @app.callback(
+#     Output("modal-sm", "is_open"),
+#     Input("clr-conf", "n_clicks"),
+#     State("modal-sm", "is_open"),
+# )
+# def toggle_modal(n1, is_open):
+#     if n1:
+#         return not is_open
+#     return is_open
+
+
 @app.callback(Output('run-eval', 'className'),
               Output('run-eval', 'children'),
               Input('btnUpdt-interval', 'n_intervals'))
@@ -645,28 +664,6 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals, settings_data):
             export_config_file(ini_path, conf_dict, methods_dict)
             start_process('{} -m evalne {}'.format(exec_path, ini_path), eval_path, True)
             return n_clicks
-
-
-# @app.callback(Output('imp-conf', 'n_clicks'),
-#               Input('imp-conf', 'n_clicks'),
-#               Input("upload-conf", "contents"),
-#               Input("upload-conf", "filename"),
-#               State('conf-values', 'data'),
-#               State('method-values', 'data'))
-# def import_config(n_clicks, contents, filename, conf_vals, methods_vals):
-#     """ This function is executed when the user preses the import config button. """
-#     ctx = callback_context
-#
-#     if not ctx.triggered:
-#         raise PreventUpdate
-#     else:
-#         if contents is not None:
-#             conf_vals, method_vals = import_config_file(contents, filename)
-#             print('From import: ')
-#             print(conf_vals)
-#             print(method_vals)
-#             print('------------')
-#         return n_clicks
 
 
 @app.callback(Output('exp-conf', 'n_clicks'),

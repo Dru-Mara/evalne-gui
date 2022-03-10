@@ -37,7 +37,7 @@
 
 * DONE Make tab data persistent, for when tabs are switched
 * DONE Make run evaluation actually fill in conf file and execute evalne
-* Make import button work
+* DONE Make import button work
 * Add popup dialogs to show that data has been imported/exported/cleared
 * DONE Make export button work
 * DONE When exporting ensure methods with no name and cmd are ignored

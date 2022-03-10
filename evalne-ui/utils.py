@@ -77,6 +77,7 @@ def import_config_file(contents):
 
 
 def get_config_vals(contents):
+    """ Reads an input conf file and returns the values found as a list. Does not return NE method related values. """
     # Read the config file
     config = import_config_file(contents)
 
@@ -131,6 +132,7 @@ def get_config_vals(contents):
 
 
 def get_config_methods(contents):
+    """ Reads an input config file and returns the NE method parameter values as a list. """
     # Read the config file
     config = import_config_file(contents)
 
@@ -166,6 +168,7 @@ def get_config_methods(contents):
 
 
 def get_num_methods(contents):
+    """ Reads an input config file and returns the number of NE methods. """
     # Read the config file
     config = import_config_file(contents)
     num_methods = len(config.get('OTHER METHODS', 'names_other').split()) + \
@@ -174,6 +177,7 @@ def get_num_methods(contents):
 
 
 def parse_opts(str_weights, str_dir):
+    """ Parses config file strings and returns a list of tuples for write weights and write dir. """
     l1 = str_weights.lower().split()
     l2 = str_dir.lower().split()
     if len(l1) == 0:
@@ -201,6 +205,7 @@ def parse_bl(str_val):
 
 
 def parse_val(str_val, default_val, dtype):
+    """ Parses a string as the specified type or returns a default value if string is empty. """
     if str_val == '' or str_val.lower() == 'none':
         res = default_val
     else:
@@ -209,6 +214,7 @@ def parse_val(str_val, default_val, dtype):
 
 
 def parse_list(str_list, default_val, dtype=str):
+    """ Parses a string as a list of objects of given type. A default values is returned if the string is empty. """
     lst = str_list.split()
     if len(lst) == 0 or lst[0] == '' or lst[0] == 'None':
         res = default_val
