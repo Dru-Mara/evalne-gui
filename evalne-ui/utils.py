@@ -1,13 +1,22 @@
 import io
+import logging
 import os
 import shlex
+import sys
+
 import psutil
 import base64
 import configparser
 import numpy as np
-from subprocess import Popen
+from subprocess import Popen, PIPE, STDOUT
 from init_values import init_vals
 from collections import OrderedDict
+from app import StreamToLogger, logger
+
+
+def log_subprocess_output(pipe):
+    for line in iter(pipe.readline, b''): # b'\n'-separated lines
+        logging.info('got line from subprocess: %r', line)
 
 
 def start_process(cmd, cwd=None, verbose=True):
@@ -35,14 +44,18 @@ def start_process(cmd, cwd=None, verbose=True):
     if cwd is None:
         cwd = os.getcwd()
     if verbose:
-        sto = None
-        ste = None
+        sto = StreamToLogger(logger, logging.INFO)
+        ste = StreamToLogger(logger, logging.ERROR)
     else:
         devnull = open(os.devnull, 'w')
         sto = devnull
         ste = devnull
 
-    Popen(shlex.split(cmd), stdout=sto, stderr=ste, cwd=cwd)
+    proc = Popen(shlex.split(cmd), stdout=sto, stderr=ste, cwd=cwd)
+    #logging.info(proc.stdout)
+    #process_output, _ = proc.communicate()
+    #process_output = StringIO(process_output)
+    #log_subprocess_output(process_output)
     print('EvalNE process started!')
 
 

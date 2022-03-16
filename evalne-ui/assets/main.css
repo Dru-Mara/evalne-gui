@@ -63,3 +63,9 @@ h1, h2, h3, h4 {
     box-shadow: inset 0px 0px 400px 110px rgb(0, 0, 0, 0.2);
     transition-duration: 0.2s;
 }
+
+
+.plot-area {
+    padding: 20px 20px 0px 20px;
+    box-shadow: 0 1px 10px rgb(0 0 0 / 13%), 0 5px 10px rgb(0 0 0 / 16%);
+}

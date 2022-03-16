@@ -68,6 +68,10 @@ settings_layout = html.Div([
 ])
 
 
+# -------------
+#   Callbacks
+# -------------
+
 @app.callback([[Output(key, 'value') for key in init_settings.keys()]],
               Output('settings-data', 'data'),
               [[Input(key, 'value') for key in init_settings.keys()]],
