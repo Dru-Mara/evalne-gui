@@ -1,5 +1,4 @@
 import io
-import logging
 import os
 import shlex
 import sys
@@ -8,18 +7,12 @@ import psutil
 import base64
 import configparser
 import numpy as np
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen
 from init_values import init_vals
 from collections import OrderedDict
-from app import StreamToLogger, logger
 
 
-def log_subprocess_output(pipe):
-    for line in iter(pipe.readline, b''): # b'\n'-separated lines
-        logging.info('got line from subprocess: %r', line)
-
-
-def start_process(cmd, cwd=None, verbose=True):
+def start_process(cmd, console_out, cwd=None, verbose=True):
     """
     Runs the cmd command provided as input in a new process.
 
@@ -27,6 +20,8 @@ def start_process(cmd, cwd=None, verbose=True):
     ----------
     cmd : string
         A string indicating the command to run on the command line.
+    console_out: string
+        Path to a file where the stdout and stderr will writen.
     cwd : string
         The working directory for the new process spawned.
     verbose : bool
@@ -36,7 +31,7 @@ def start_process(cmd, cwd=None, verbose=True):
     --------
     Runs a command that prints Start, sleeps for 5 seconds and prints Done
 
-    >>> util.run("python -c 'import time; print(\"Start\"); time.sleep(5); print(\"Done\")'", True)
+    >>> start_process("python -c 'import time; print(\"Start\"); time.sleep(5); print(\"Done\")'", True)
     Start
     Done
 
@@ -44,18 +39,18 @@ def start_process(cmd, cwd=None, verbose=True):
     if cwd is None:
         cwd = os.getcwd()
     if verbose:
-        sto = StreamToLogger(logger, logging.INFO)
-        ste = StreamToLogger(logger, logging.ERROR)
+        sto = open(console_out, 'w')
+        ste = open(console_out, 'w')
     else:
         devnull = open(os.devnull, 'w')
         sto = devnull
         ste = devnull
 
-    proc = Popen(shlex.split(cmd), stdout=sto, stderr=ste, cwd=cwd)
-    #logging.info(proc.stdout)
-    #process_output, _ = proc.communicate()
-    #process_output = StringIO(process_output)
-    #log_subprocess_output(process_output)
+    Popen(shlex.split(cmd), stdout=sto, stderr=ste, cwd=cwd)
+
+    # with Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE, cwd=cwd) as proc:
+    #    log.write(proc.stdout.read())
+
     print('EvalNE process started!')
 
 

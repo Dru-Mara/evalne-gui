@@ -35,23 +35,30 @@
 
 ## TODO ##
 
-* DONE Make tab data persistent, for when tabs are switched
-* DONE Make run evaluation actually fill in conf file and execute evalne
-* DONE Make import button work
-* Add popup dialogs to show that data has been imported/exported/cleared
-* DONE Make export button work
-* DONE When exporting ensure methods with no name and cmd are ignored
-* DONE Change method options based on method type
-* DONE Fix button hoover
-* DONE Toggle Run Evaluation/Stop Evaluation on btn click
-* DONE Use interval object to keep Start/Stop button appearance consistent with eval state
-* DONE Change data drag & drop to textfield
-* Add monitoring plots
-* Fill in Runs tab
-* Collect in Results the evaluation outputs of previous runs
-* DONE Allow user to select evaluation path and pythonpath in settings menu.
-* The conf.ini values and descriptions in the conf.ini of evalne should be changed. 
-* Better variable names and fix description issues. for NC we should use the 'lp_model' as the binary classifier.
+- [x] Make tab data persistent, for when tabs are switched
+- [x] Make run evaluation actually fill in conf file and execute evalne
+- [x] Make import button work
+- [x] Add popup dialogs to show that data has been imported/exported/cleared
+- [x] Make export button work
+- [x] When exporting ensure methods with no name and cmd are ignored
+- [x] Change method options based on method type
+- [x] Fix button hoover
+- [x] Toggle Run Evaluation/Stop Evaluation on btn click
+- [x] Use interval object to keep Start/Stop button appearance consistent with eval state
+- [x] Change data drag & drop to textfield
+- [ ] Add monitoring plots
+- [ ] Fill in Runs tab
+- [ ] Collect in Results the evaluation outputs of previous runs
+- [x] Allow user to select evaluation path and pythonpath in settings menu.
+- [ ] Fix Readme and documentation for this project. E.g. no installation needed
+- [ ] Upload EvalNE-UI to pip
+- [ ] Use pipes instead of a file to read/write onto the UI console e.g.
+https://codereview.stackexchange.com/questions/6567/redirecting-subprocesses-output-stdout-and-stderr-to-the-logging-module
+
+
+Other changes to EvalNE/EvalNE-UI
+- [ ] The conf.ini values and descriptions in the conf.ini of evalne should be changed. 
+- [ ] Better variable names and fix description issues. for NC we should use the 'lp_model' as the binary classifier.
 
 ## About ##
 

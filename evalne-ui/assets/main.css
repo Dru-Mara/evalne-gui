@@ -64,8 +64,20 @@ h1, h2, h3, h4 {
     transition-duration: 0.2s;
 }
 
-
 .plot-area {
     padding: 20px 20px 0px 20px;
+    box-shadow: 0 1px 10px rgb(0 0 0 / 13%), 0 5px 10px rgb(0 0 0 / 16%);
+}
+
+.bash {
+    color: white;
+    background-color: black;
+    font-size: small;
+    font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+    width: 100%;
+    height: 400px;
+    display: inline-block;
+    overflow: scroll;
+    border: inset;
     box-shadow: 0 1px 10px rgb(0 0 0 / 13%), 0 5px 10px rgb(0 0 0 / 16%);
 }

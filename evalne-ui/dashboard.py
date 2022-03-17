@@ -645,7 +645,6 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals, settings_data):
         else:
             # Odd clicks start eval and set button to `Stop Evaluation`
             settings_data = json.loads(settings_data)
-            print(settings_data)
             if settings_data[0] == '':
                 exec_path = sys.executable
             else:
@@ -655,8 +654,7 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals, settings_data):
             else:
                 eval_path = settings_data[1]
             ini_path = os.path.join(eval_path, 'conf.ini')
-            print(exec_path)
-            print(eval_path)
+            console_out = os.path.join(eval_path, 'console.out')
 
             # Load config data
             conf_vals = json.loads(conf_vals)
@@ -666,7 +664,8 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals, settings_data):
 
             # Export conf.ini and run evaluation
             export_config_file(ini_path, conf_dict, methods_dict)
-            start_process('{} -m evalne {}'.format(exec_path, ini_path), eval_path, True)
+            start_process('{} -m evalne {}'.format(exec_path, ini_path), console_out, eval_path, True)
+
             return n_clicks
 
 

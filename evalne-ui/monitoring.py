@@ -12,7 +12,7 @@ import pandas as pd
 import datetime
 import logging
 
-from app import app, dashLoggerHandler
+from app import app
 from dash.dependencies import Input, Output
 from dash import dcc, State, html
 from collections import deque
@@ -55,17 +55,17 @@ monitoring_layout = html.Div([
     html.Hr(className='sectionHr'),
     html.Br(),
 
-    # TODO
+    html.Div(id='proc-info', className='plot-area', children=['Todo']),
 
     # --------------------------
     #     Evaluation Output
     # --------------------------
-    html.H3(children='Evaluation output', className='section-title'),
+    html.H3(children='Latest evaluation output', className='section-title'),
     html.Hr(className='sectionHr'),
     html.Br(),
 
-    html.Div(id='output', className='plot-area', children=[
-        html.Iframe(id='console-out', srcDoc='', style={'width': '100%', 'height':400})
+    html.Div([
+        html.Pre(id='console-out', className='bash')
     ])
 
 ])
@@ -76,11 +76,19 @@ monitoring_layout = html.Div([
 # -------------
 
 @app.callback(
-    Output('console-out', 'srcDoc'),
+    Output('console-out', 'children'),
     Input('plot-update-interval', 'n_intervals'))
 def update_output(n):
-    logging.info('working')
-    return ('\n'.join(dashLoggerHandler.queue)).replace('\n', '<BR>')
+    try:
+        filename = os.path.join(os.getcwd(), 'console.out')
+        f = open(filename, 'r')
+        text = f.read()
+        f.close()
+        return text.replace('\n', '\nfoo@bar:~$ ')
+    except:
+        return ''
+
+    # return ('\n'.join(dashLoggerHandler.queue)).replace('\n', '<BR>')
 
 
 @app.callback(Output('live-update-graph', 'figure'),

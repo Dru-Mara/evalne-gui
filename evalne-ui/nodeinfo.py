@@ -24,6 +24,12 @@ class SysInfo(object):
     def get_memory(self):
         return psutil.virtual_memory()._asdict()
 
+    def get_used_mem_perc(self):
+        return psutil.virtual_memory().percent
+
+    def get_free_mem_perc(self):
+        return psutil.virtual_memory().available * 100 / psutil.virtual_memory().total
+
     def get_swap_space(self):
         sm = psutil.swap_memory()
         swap = {
