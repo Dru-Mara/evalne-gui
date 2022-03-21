@@ -65,7 +65,7 @@ h1, h2, h3, h4 {
 }
 
 .plot-area {
-    padding: 20px 20px 0px 20px;
+    padding: 20px 20px 20px 20px;
     box-shadow: 0 1px 10px rgb(0 0 0 / 13%), 0 5px 10px rgb(0 0 0 / 16%);
 }
 
@@ -80,4 +80,16 @@ h1, h2, h3, h4 {
     overflow: scroll;
     border: inset;
     box-shadow: 0 1px 10px rgb(0 0 0 / 13%), 0 5px 10px rgb(0 0 0 / 16%);
+}
+
+.plot-tables {
+    width: 90%;
+    margin-left: 10%;
+}
+
+table, tr {
+    border-collapse: collapse;
+    border-top: 1px solid #f1f1f1;
+    border-bottom: 1px solid #f1f1f1;
+    height: 40px;
 }

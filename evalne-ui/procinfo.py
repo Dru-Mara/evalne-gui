@@ -5,7 +5,7 @@ import socket
 import platform
 
 
-class SysInfo(object):
+class ProcInfo(object):
     def __init__(self, pid):
         self._pid = pid
 
@@ -20,6 +20,9 @@ class SysInfo(object):
         }
 
         return sysinfo
+
+    def get_loadavg(self):
+        return psutil.getloadavg()
 
     def get_memory(self):
         return psutil.virtual_memory()._asdict()

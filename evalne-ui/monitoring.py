@@ -16,18 +16,43 @@ from app import app
 from dash.dependencies import Input, Output
 from dash import dcc, State, html
 from collections import deque
+from utils import search_process
 
-X = deque(maxlen=20)
-X.append(0)
+# --------------------------
+#      Plot variables
+# --------------------------
 
-Xl = deque(maxlen=20)
-Xl.append(datetime.datetime.now().strftime("%H:%M:%S"))
-
+X1 = deque(maxlen=20)
+X1.append(0)
+X2 = deque(maxlen=20)
+X2.append(0)
 Y = deque(maxlen=20)
 Y.append(0)
-
 Z = deque(maxlen=20)
 Z.append(0)
+
+
+def generate_table(id, data, cols=None):
+    if cols:
+        table = html.Table(
+            id=id,
+            className='plot-tables',
+            children=
+            # Header
+            [html.Tr([html.Th(col) for col in cols])] +
+            # Body
+            [html.Tr([html.Td(k), html.Td(v)]) for k, v in data.items()],
+        )
+    else:
+        table = html.Table(
+            id=id,
+            className='plot-tables',
+            children=[
+                html.Tr([html.Td(k), html.Td(v)]) for k, v in data.items()
+            ],
+        )
+    return table
+
 
 monitoring_layout = html.Div([
 
@@ -44,9 +69,30 @@ monitoring_layout = html.Div([
     html.Hr(className='sectionHr'),
     html.Br(),
 
-    html.Div(id='graphs12', className='plot-area', children=[
-        dcc.Graph(id='live-update-graph', animate=True),
-    ]),
+    html.Div(
+        children=[
+            html.Div(
+                id='cpu-div',
+                className='plot-area',
+                children=[
+                    dcc.Graph(id='cpu-graph', animate=True),
+                    html.Div(id='cpu-table'),
+                ],
+                style={'width': '48%', 'margin-right': '4%'}
+            ),
+
+            html.Div(
+                id='mem-div',
+                className='plot-area',
+                children=[
+                    dcc.Graph(id='mem-graph', animate=True),
+                    html.Div(id='mem-table'),
+                ],
+                style={'width': '48%'}
+            ),
+        ],
+        style={'display': 'flex'},
+    ),
 
     # --------------------------
     #      Process Info
@@ -55,7 +101,28 @@ monitoring_layout = html.Div([
     html.Hr(className='sectionHr'),
     html.Br(),
 
-    html.Div(id='proc-info', className='plot-area', children=['Todo']),
+    html.Div(
+        children=[
+            html.Div(
+                id='proc-div',
+                className='plot-area',
+                children=[
+                    html.Div(id='proc-table'),
+                ],
+                style={'width': '48%', 'margin-right': '4%'}
+            ),
+
+            html.Div(
+                id='proc2-div',
+                className='plot-area',
+                children=[
+                    html.Div(id='proc2-table'),
+                ],
+                style={'width': '48%'}
+            ),
+        ],
+        style={'display': 'flex'},
+    ),
 
     # --------------------------
     #     Evaluation Output
@@ -88,47 +155,101 @@ def update_output(n):
     except:
         return ''
 
-    # return ('\n'.join(dashLoggerHandler.queue)).replace('\n', '<BR>')
+
+@app.callback(
+    Output('proc-table', 'children'),
+    Output('proc2-table', 'children'),
+    Input('plot-update-interval', 'n_intervals'))
+def update_tables(n):
+    p = search_process('evalne')
+    proc = {
+        'pid': p.pid if p else 'Unknown',
+        'name': p.name() if p else 'Unknown',
+        'cmdline': ' '.join(p.cmdline()) if p else 'Unknown',
+        'status': p.status() if p else 'Unknown',
+        'created': p.create_time() if p else 'Unknown',
+        'mem_percent': p.memory_percent() if p else 'Unknown',
+        'cpu_percent': p.cpu_percent(0) if p else 'Unknown',
+    }
+    res = [
+        generate_table('proc-info', proc, None),
+        generate_table('proc2-info', proc, None),
+    ]
+    return res
 
 
-@app.callback(Output('live-update-graph', 'figure'),
+@app.callback(
+    Output('cpu-table', 'children'),
+    Output('mem-table', 'children'),
+    Input('plot-update-interval', 'n_intervals'))
+def update_tables(n):
+    mem = psutil.virtual_memory()
+    memlst = [mem.used / (1024*1024*1024), mem.available / (1024*1024*1024), mem.total / (1024*1024*1024)]
+
+    res = [
+        generate_table('cpu-info',
+                       dict(list(zip(
+                           ['Load average (1 min): ', 'Load average (5 min): ', 'Load average (15 min): '],
+                           ['{:.2f} %'.format(x / psutil.cpu_count() * 100) for x in psutil.getloadavg()]))),
+                       None),
+        generate_table('mem-info',
+                       dict(list(zip(
+                           ['Used Memory (%): ', 'Available Memory (%): ', 'Total Memory (%): '],
+                           ['{:.2f} GB'.format(x) for x in memlst]))),
+                       None),
+    ]
+    return res
+
+
+@app.callback(Output('cpu-graph', 'figure'),
               Input('plot-update-interval', 'n_intervals'))
-def update_graph_live(n):
-    X.append(X[-1] + 1)
-    Xl.append(datetime.datetime.now().strftime("%H:%M:%S"))
+def update_graph_live1(n):
+    X1.append(X1[-1] + 1)
     Y.append(psutil.cpu_percent())
-    Z.append(psutil.virtual_memory()[2])
 
-    # Create the graph with subplots
-    fig = plotly.subplots.make_subplots(rows=1, cols=2, column_widths=[0.5, 0.5],
-                                        subplot_titles=('CPU Usage (%)', 'Memory Usage (%)'))
+    fig = go.Figure()
 
-    fig.update_xaxes(title_text="", range=[min(X), max(X)], row=1, col=1, showticklabels=False)
-    fig.update_xaxes(title_text="", range=[min(X), max(X)], row=1, col=2, showticklabels=False)
-
-    fig.update_yaxes(title_text="", range=[0, 100], row=1, col=1)
-    fig.update_yaxes(title_text="", range=[0, 100], row=1, col=2)
+    fig.update_xaxes(title_text="", range=[min(X1), max(X1)], showticklabels=False)
+    fig.update_yaxes(title_text="", range=[0, 100])
 
     fig.add_trace({
-        'x': list(X),
+        'x': list(X1),
         'y': list(Y),
         'name': 'CPU Usage',
         'mode': 'lines',
         'type': 'scatter',
         'fill': 'tozeroy',
         'line_color': 'limegreen'
-    }, 1, 1)
-    fig.add_trace({
-        'x': list(X),
-        'y': list(Z),
-        'name': 'Virtual Memory Usage',
-        'mode': 'lines',
-        'type': 'scatter',
-        'fill': 'tozeroy',
-        'line_color': 'gold'       # 'line': dict(width=1.5, color='rgb(0, 255, 0)')
-    }, 1, 2)
+    })
 
-    fig.update_layout(height=300, showlegend=False, margin={'l': 30, 'r': 10, 'b': 30, 't': 10})
+    fig.update_layout(title='CPU Usage (%)', showlegend=False, autosize=True, height=300,
+                      margin={'l': 10, 'r': 10, 'b': 10, 't': 50})
 
     return fig
 
+
+@app.callback(Output('mem-graph', 'figure'),
+              Input('plot-update-interval', 'n_intervals'))
+def update_graph_live2(n):
+    X2.append(X1[-1] + 1)
+    Z.append(psutil.virtual_memory()[2])
+
+    fig = go.Figure()
+
+    fig.update_xaxes(title_text="", range=[min(X2), max(X2)], showticklabels=False)
+    fig.update_yaxes(title_text="", range=[0, 100])
+
+    fig.add_trace({
+        'x': list(X2),
+        'y': list(Z),
+        'name': 'CPU Usage',
+        'mode': 'lines',
+        'type': 'scatter',
+        'fill': 'tozeroy',
+        'line_color': 'gold'
+    })
+
+    fig.update_layout(title='Memory Usage (%)', showlegend=False, autosize=True, height=300,
+                      margin={'l': 10, 'r': 10, 'b': 10, 't': 50})
+
+    return fig
