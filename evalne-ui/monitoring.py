@@ -1,22 +1,19 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author: Mara Alexandru Cristian
+# Contact: alexandru.mara@ugent.be
+# Date: 22/03/2021
+
 import os
-import dash
-import time
+import json
 import psutil
-import plotly
-import socket
-import platform
 import plotly.graph_objects as go
-import numpy as np
-import plotly.express as px
-import pandas as pd
-import datetime
-import logging
 
 from app import app
 from dash.dependencies import Input, Output
 from dash import dcc, State, html
 from collections import deque
-from utils import search_process
+from utils import get_proc_info, read_file
 
 # --------------------------
 #      Plot variables
@@ -32,9 +29,12 @@ Z = deque(maxlen=20)
 Z.append(0)
 
 
-def generate_table(id, data, cols=None):
+def generate_table(id, data, cols=None, title=None):
+    table = []
+    if title:
+        table = [html.Center([html.H4([title])])]
     if cols:
-        table = html.Table(
+        table.append(html.Table(
             id=id,
             className='plot-tables',
             children=
@@ -42,15 +42,15 @@ def generate_table(id, data, cols=None):
             [html.Tr([html.Th(col) for col in cols])] +
             # Body
             [html.Tr([html.Td(k), html.Td(v)]) for k, v in data.items()],
-        )
+        ))
     else:
-        table = html.Table(
+        table.append(html.Table(
             id=id,
             className='plot-tables',
             children=[
                 html.Tr([html.Td(k), html.Td(v)]) for k, v in data.items()
             ],
-        )
+        ))
     return table
 
 
@@ -65,7 +65,7 @@ monitoring_layout = html.Div([
     # --------------------------
     #      Global settings
     # --------------------------
-    html.H3(children='System resource monitoring', className='section-title'),
+    html.H3(children='System Resource Monitoring', className='section-title'),
     html.Hr(className='sectionHr'),
     html.Br(),
 
@@ -97,7 +97,7 @@ monitoring_layout = html.Div([
     # --------------------------
     #      Process Info
     # --------------------------
-    html.H3(children='EvalNE process info', className='section-title'),
+    html.H3(children='Process Info', className='section-title'),
     html.Hr(className='sectionHr'),
     html.Br(),
 
@@ -127,13 +127,21 @@ monitoring_layout = html.Div([
     # --------------------------
     #     Evaluation Output
     # --------------------------
-    html.H3(children='Latest evaluation output', className='section-title'),
+    html.H3(children='Latest Evaluation Output', className='section-title'),
     html.Hr(className='sectionHr'),
     html.Br(),
 
-    html.Div([
-        html.Pre(id='console-out', className='bash')
-    ])
+    html.Div(
+        children=[
+            html.Pre(id='console-out', className='bash')
+        ],
+        style={'margin': '10px 30px 30px 30px'},
+    ),
+
+    # --------------------------
+    #       Data storage
+    # --------------------------
+    dcc.Store(id='settings-data', storage_type='local'),
 
 ])
 
@@ -144,16 +152,19 @@ monitoring_layout = html.Div([
 
 @app.callback(
     Output('console-out', 'children'),
-    Input('plot-update-interval', 'n_intervals'))
-def update_output(n):
+    Input('plot-update-interval', 'n_intervals'),
+    State('settings-data', 'data'))
+def update_output(n, settings_data):
     try:
-        filename = os.path.join(os.getcwd(), 'console.out')
-        f = open(filename, 'r')
-        text = f.read()
-        f.close()
+        settings_data = json.loads(settings_data)
+        if settings_data[1] == '':
+            eval_path = os.getcwd()
+        else:
+            eval_path = settings_data[1]
+        text = read_file(eval_path, 'console.out')
         return text.replace('\n', '\nfoo@bar:~$ ')
     except:
-        return ''
+        return 'No output file found! Start a new evaluation to see the output...'
 
 
 @app.callback(
@@ -161,21 +172,15 @@ def update_output(n):
     Output('proc2-table', 'children'),
     Input('plot-update-interval', 'n_intervals'))
 def update_tables(n):
-    p = search_process('evalne')
-    proc = {
-        'pid': p.pid if p else 'Unknown',
-        'name': p.name() if p else 'Unknown',
-        'cmdline': ' '.join(p.cmdline()) if p else 'Unknown',
-        'status': p.status() if p else 'Unknown',
-        'created': p.create_time() if p else 'Unknown',
-        'mem_percent': p.memory_percent() if p else 'Unknown',
-        'cpu_percent': p.cpu_percent(0) if p else 'Unknown',
-    }
-    res = [
-        generate_table('proc-info', proc, None),
-        generate_table('proc2-info', proc, None),
+    aux = []
+    proc_names = ['index', 'evalne']
+    for name in proc_names:
+        aux.append(get_proc_info(name))
+
+    return [
+        generate_table('proc-info', aux[0], None, 'EvalNE-UI Process Info'),
+        generate_table('proc2-info', aux[1], None, 'EvalNE Process Info'),
     ]
-    return res
 
 
 @app.callback(

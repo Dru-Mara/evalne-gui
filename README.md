@@ -46,19 +46,22 @@
 - [x] Toggle Run Evaluation/Stop Evaluation on btn click
 - [x] Use interval object to keep Start/Stop button appearance consistent with eval state
 - [x] Change data drag & drop to textfield
-- [ ] Add monitoring plots
-- [ ] Fill in Runs tab
-- [ ] Collect in Results the evaluation outputs of previous runs
+- [x] Add monitoring plots
+- [x] Fill in Runs tab
+- [x] Collect in Results the evaluation outputs of previous runs
 - [x] Allow user to select evaluation path and pythonpath in settings menu.
+- [ ] Make EvalNE proc a class with start/stop/info
 - [ ] Fix Readme and documentation for this project. E.g. no installation needed
 - [ ] Upload EvalNE-UI to pip
 - [ ] Use pipes instead of a file to read/write onto the UI console e.g.
 https://codereview.stackexchange.com/questions/6567/redirecting-subprocesses-output-stdout-and-stderr-to-the-logging-module
-
+- [ ] Switch to production server instead of dev.
 
 Other changes to EvalNE/EvalNE-UI
 - [ ] The conf.ini values and descriptions in the conf.ini of evalne should be changed. 
-- [ ] Better variable names and fix description issues. for NC we should use the 'lp_model' as the binary classifier.
+- [ ] Better variable names and fix description issues. For NC we should use the 'lp_model' as the binary classifier.
+
+Inspiration for the UI: https://github.com/Jahaja/psdash and https://afaqurk.github.io/linux-dash/#/system-status
 
 ## About ##
 

@@ -28,6 +28,12 @@
     display: flex !important;
     align-items: center;
 }
+
+
+.custom-tab:hover {
+    opacity: 1;
+}
+
 .custom-tab--selected {
     color: black;
     border-top: 3px solid #e36209 !important;

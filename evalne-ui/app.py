@@ -1,61 +1,10 @@
-# Run this app with `python app.py` and
-# visit http://127.0.0.1:8050/ in your web browser.
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author: Mara Alexandru Cristian
+# Contact: alexandru.mara@ugent.be
+# Date: 22/03/2021
 
-import sys
 import dash
-import logging
-#from io import StringIO
-
-
-# class StreamToLogger(object):
-#     """
-#     Fake file-like stream object that redirects writes to a logger instance.
-#     """
-#
-#     def __init__(self, logger, log_level=logging.INFO):
-#         self.logger = logger
-#         self.log_level = log_level
-#         self.linebuf = ''
-#
-#     def write(self, buf):
-#         for line in buf.rstrip().splitlines():
-#             self.logger.log(self.log_level, line.rstrip())
-#
-#     def flush(self):
-#         pass
-#
-#
-# class DashLoggerHandler(logging.StreamHandler):
-#     def __init__(self, stream=None):
-#         logging.StreamHandler.__init__(self, stream=stream)
-#         self.queue = []
-#
-#     def emit(self, record):
-#         try:
-#             msg = self.format(record)
-#             self.queue.append(msg)
-#         except Exception:
-#             self.handleError(record)
-#
-#
-# logging.basicConfig(
-#     level=logging.DEBUG,
-#     format='%(asctime)s:%(levelname)s:%(name)s:%(message)s',
-#     filename="out.log",
-#     filemode='a',
-#     #stream=sys.stdout,
-# )
-# logger = logging.getLogger('aaa')
-# logger.setLevel(logging.DEBUG)
-# dashLoggerHandler = DashLoggerHandler(sys.stdout)
-# logger.addHandler(dashLoggerHandler)
-
-#sys.stdout = StreamToLogger(logger, logging.INFO)
-#sys.stderr = StreamToLogger(logger, logging.ERROR)
-#
-# logging.StreamHandler(sys.stdout)
-# logging.StreamHandler(sys.stderr)
-
 
 external_stylesheets = [{
     'href': 'https://use.fontawesome.com/releases/v5.8.1/css/all.css',

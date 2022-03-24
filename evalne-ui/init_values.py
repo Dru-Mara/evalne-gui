@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author: Mara Alexandru Cristian
+# Contact: alexandru.mara@ugent.be
+# Date: 22/03/2021
+
 from collections import OrderedDict
 
 init_vals = OrderedDict({'task-dropdown': 'lp',

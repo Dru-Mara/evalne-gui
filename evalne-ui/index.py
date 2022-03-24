@@ -1,16 +1,22 @@
-# Run this app with `python app.py` and
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author: Mara Alexandru Cristian
+# Contact: alexandru.mara@ugent.be
+# Date: 22/03/2021
+# Run this app with `python index.py` and
 # visit http://127.0.0.1:8050/ in your web browser.
 
 import webbrowser
+
 from threading import Timer
 from app import app
 from dash.dependencies import Input, Output
 from dash import dcc, State, html
-from runs import runs_layout
 from settings import settings_layout
 from results import results_layout
 from dashboard import dashboard_layout
 from monitoring import monitoring_layout
+# from runs import runs_layout
 
 
 def open_browser():
@@ -27,8 +33,7 @@ app.layout = html.Div([
         html.H1(
             children='EvalNE Dashboard',
             style={'textAlign': 'center',
-                   'text-shadow': '4px 4px 5px #020202'
-            }
+                   'text-shadow': '4px 4px 5px #020202'}
         ),
 
         # Subtitle
@@ -36,8 +41,7 @@ app.layout = html.Div([
             children='A Python library for evaluation network embedding methods.',
             style={'textAlign': 'center',
                    'text-shadow': '2px 2px 3px #020202',
-                   'font-weight': '700'
-            }
+                   'font-weight': '700'}
         ),
         html.Br(),
         html.Br()
@@ -71,14 +75,14 @@ app.layout = html.Div([
                     className='custom-tab monitoring-tab',
                     selected_className='custom-tab--selected'
                 ),
+                # dcc.Tab(
+                #     label='Runs',
+                #     value='runs',
+                #     className='custom-tab runs-tab',
+                #     selected_className='custom-tab--selected'
+                # ),
                 dcc.Tab(
-                    label='Runs',
-                    value='runs',
-                    className='custom-tab runs-tab',
-                    selected_className='custom-tab--selected'
-                ),
-                dcc.Tab(
-                    label='Results',
+                    label='Runs & Results',
                     value='results',
                     className='custom-tab results-tab',
                     selected_className='custom-tab--selected'
@@ -107,13 +111,13 @@ def render_content(tab):
         return html.Div([
             html.H3('Monitoring', className='header-title')
         ]), monitoring_layout
-    elif tab == 'runs':
-        return html.Div([
-            html.H3('Runs', className='header-title')
-        ]), runs_layout
+    # elif tab == 'runs':
+    #     return html.Div([
+    #         html.H3('Runs', className='header-title')
+    #     ]), runs_layout
     elif tab == 'results':
         return html.Div([
-            html.H3('Results', className='header-title')
+            html.H3('Runs & Results', className='header-title')
         ]), results_layout
     elif tab == 'settings':
         return html.Div([

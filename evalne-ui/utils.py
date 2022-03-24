@@ -1,10 +1,15 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author: Mara Alexandru Cristian
+# Contact: alexandru.mara@ugent.be
+# Date: 22/03/2021
+
 import io
 import os
 import shlex
-import sys
-
 import psutil
 import base64
+import datetime
 import configparser
 import numpy as np
 from subprocess import Popen
@@ -68,6 +73,21 @@ def search_process(process_name):
         if process_name in shlex.join(proc.cmdline()):
             return proc
     return None
+
+
+def get_proc_info(process_name):
+    p = search_process(process_name)
+    proc = {
+        'PID': p.pid if p else 'Unknown',
+        'NAME': p.name() if p else 'Unknown',
+        'CMD_LINE': ' '.join(p.cmdline()) if p else 'Unknown',
+        'STATUS': p.status() if p else 'Unknown',
+        'MEM%': '{:.2f} %'.format(p.memory_percent()) if p else 'Unknown',
+        'CPU%': '{:.2f} %'.format(p.cpu_percent(0)) if p else 'Unknown',
+        'CWD': p.cwd() if p else 'Unknown',
+        'THREADS': p.num_threads() if p else 'Unknown',
+    }
+    return proc
 
 
 def import_config_file(contents):
@@ -365,3 +385,50 @@ def proc_nested_lists(val, lst):
     for l in lst:
         res.append(str(val in l))
     return get_list(res, ' ')
+
+
+def get_logged_evals(path):
+    res = []
+    for fname in os.listdir(path):
+        aux = []
+        if '_eval_' in fname:
+            # Get filename
+            aux.append(fname)
+
+            fpath = os.path.join(path, fname)
+            logpath = os.path.join(fpath, 'eval.log')
+            with open(logpath) as f:
+                content = f.read()
+                content = content.strip().split('\n')
+                # Get status
+                if 'Evaluation end' in content[-1]:
+                    aux.append('Finished')
+                else:
+                    if search_process('evalne') is not None:
+                        aux.append('Running')
+                    else:
+                        aux.append('Failed')
+                # Get runtime
+                start_time = content[0].split(' - ')[0]
+                end_time = content[-1].split(' - ')[0]
+                std = datetime.datetime.strptime(start_time, '%d-%m-%y %H:%M:%S')
+                etd = datetime.datetime.strptime(end_time, '%d-%m-%y %H:%M:%S')
+                aux.append(str(etd - std))
+
+                # Get start time
+                aux.append(start_time)
+
+                # Get end time
+                aux.append(end_time)
+            res.append(aux)
+    return res
+
+
+def read_file(path, filename):
+    try:
+        f = open(os.path.join(path, filename), 'r')
+        text = f.read()
+        f.close()
+        return text
+    except:
+        return 'No output file found! Evaluation has failed or is still running...'

@@ -65,6 +65,7 @@ h1, h2, h3, h4 {
 }
 
 .plot-area {
+    margin: 10px 30px 30px 30px;
     padding: 20px 20px 20px 20px;
     box-shadow: 0 1px 10px rgb(0 0 0 / 13%), 0 5px 10px rgb(0 0 0 / 16%);
 }
@@ -75,11 +76,16 @@ h1, h2, h3, h4 {
     font-size: small;
     font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
     width: 100%;
-    height: 400px;
+    height: fit-content;
+    min-height: 200px;
     display: inline-block;
     overflow: scroll;
     border: inset;
     box-shadow: 0 1px 10px rgb(0 0 0 / 13%), 0 5px 10px rgb(0 0 0 / 16%);
+}
+
+.runs-table {
+    width: 100%;
 }
 
 .plot-tables {
@@ -88,8 +94,24 @@ h1, h2, h3, h4 {
 }
 
 table, tr {
+    border-spacing: 20px;
     border-collapse: collapse;
     border-top: 1px solid #f1f1f1;
     border-bottom: 1px solid #f1f1f1;
     height: 40px;
+}
+
+tr:hover {
+    background: whitesmoke;
+}
+
+th {
+    text-align: left;
+    width: 150px;
+}
+
+td {
+    overflow-wrap: break-word;
+    border-spacing: 20px;
+    width: 150px;
 }

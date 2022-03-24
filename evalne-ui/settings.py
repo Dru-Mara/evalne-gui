@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author: Mara Alexandru Cristian
+# Contact: alexandru.mara@ugent.be
+# Date: 22/03/2021
+
 import os
 import sys
 import json
@@ -42,24 +48,28 @@ settings_layout = html.Div([
 
     # Settings for python path and evaluation folder
     html.Div(
+        className='plot-area',
         children=[
-            html.Label(['Set EvalNE Python path:']),
-            dcc.Input(id="ib-pythonpath", className='input-box', type="text", value=init_settings['ib-pythonpath'],
-                      placeholder="Insert path to python executable where EvalNE is installed. Default is: `{}`"
-                      .format(sys.executable), persistence=True),
-        ],
+            html.Div(
+                children=[
+                    html.Label(['Set EvalNE Python path:']),
+                    dcc.Input(id="ib-pythonpath", className='input-box', type="text", value=init_settings['ib-pythonpath'],
+                              placeholder="Insert path to python executable where EvalNE is installed. Default is: `{}`"
+                              .format(sys.executable), persistence=True),
+                ],
+            ),
+            html.Br(),
+            html.Div(
+                children=[
+                    html.Label(['Set evaluation folder path:']),
+                    dcc.Input(id="ib-evalpath", className='input-box', type="text", value=init_settings['ib-evalpath'],
+                              placeholder="Insert path to folder where to store results. Default is: `{}`"
+                              .format(os.getcwd()), persistence=True),
+                ],
+            ),
+            html.Br(),
+        ]
     ),
-    html.Br(),
-    html.Div(
-        children=[
-            html.Label(['Set evaluation folder path:']),
-            dcc.Input(id="ib-evalpath", className='input-box', type="text", value=init_settings['ib-evalpath'],
-                      placeholder="Insert path to folder where to store results. Default is: `{}`"
-                      .format(os.getcwd()), persistence=True),
-        ],
-    ),
-    html.Br(),
-    html.Br(),
 
     # --------------------------
     #       Data storage

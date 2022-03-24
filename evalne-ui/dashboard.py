@@ -1,7 +1,12 @@
-import json
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author: Mara Alexandru Cristian
+# Contact: alexandru.mara@ugent.be
+# Date: 22/03/2021
+
 import os
 import sys
-import dash
+import json
 import dash_bootstrap_components as dbc
 
 from app import app
@@ -11,9 +16,6 @@ from dash import dcc, State, html, ALL, MATCH
 from dash.exceptions import PreventUpdate
 from utils import *
 from init_values import *
-
-# TODO: show a message when data has been exported/imported successfully e.g. use modal
-#  https://dash-bootstrap-components.opensource.faculty.ai/docs/components/modal/
 
 
 maximize_opts = [{'label': 'AUROC', 'value': 'auroc'},
@@ -84,6 +86,7 @@ dashboard_layout = html.Div([
     html.Hr(className='sectionHr'),
     html.Br(),
 
+    html.Div(className='plot-area', children=[
     # TASK
     html.Div(
         children=[
@@ -186,7 +189,7 @@ dashboard_layout = html.Div([
             ),
             html.Div(
                 children=[
-                    html.Label(['Embedding dimensionality:']),
+                    html.Label(['Embedding dimension:']),
                     dcc.Input(id="ib-embdim", className='input-box', type="number", value=init_vals['ib-embdim'],
                               min=1, persistence=True),
                 ],
@@ -282,6 +285,7 @@ dashboard_layout = html.Div([
         ],
         style={'display': 'flex'}
     ),
+    ]),
 
     # --------------------------
     # Networks and preprocessing
@@ -290,6 +294,7 @@ dashboard_layout = html.Div([
     html.Hr(className='sectionHr'),
     html.Br(),
 
+    html.Div(className='plot-area', children=[
     # NAMES (text)
     # INPATHS (text)
     # LABELPATH (text)
@@ -434,6 +439,7 @@ dashboard_layout = html.Div([
         ],
         style={'display': 'flex'}
     ),
+    ]),
 
     # --------------------------
     #  Baselines and NE methods
@@ -441,6 +447,8 @@ dashboard_layout = html.Div([
     html.H3(children='Baselines and NE Methods', className='section-title'),
     html.Hr(className='sectionHr'),
     html.Br(),
+
+    html.Div(className='plot-area', children=[
     # LP_BASELINES
     # NEIGHBOURHOOD
     # METHOD TYPE (library or other)
@@ -516,6 +524,7 @@ dashboard_layout = html.Div([
         html.Button('+ Add method', id='add-method', className='btn btn-square btn-sm', n_clicks=1),
         html.Button('- Delete method', id='delete-method', className='btn btn-square btn-sm', n_clicks=0),
     ]),
+    ]),
 
     # --------------------------
     #     Metrics and Plots
@@ -523,6 +532,8 @@ dashboard_layout = html.Div([
     html.H3(children='Metrics and Plots', className='section-title'),
     html.Hr(className='sectionHr'),
     html.Br(),
+
+    html.Div(className='plot-area', children=[
     # MAXIMIZE (dropdown)
     # SCORES (dropdown)
     # CURVES (dropdown)
@@ -580,6 +591,7 @@ dashboard_layout = html.Div([
     ),
     html.Br(),
     html.Br(),
+    ]),
 
     # --------------------------
     #       Data storage
