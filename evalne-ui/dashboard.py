@@ -222,6 +222,7 @@ dashboard_layout = html.Div([
     # OWA (dropdown)
     # FE_RATIO (text check integer)
     html.Div(
+        id='global-r3-div',
         children=[
             html.Div(
                 children=[
@@ -283,7 +284,6 @@ dashboard_layout = html.Div([
                 style={'width': '22%'}
             ),
         ],
-        style={'display': 'flex'}
     ),
     ]),
 
@@ -502,6 +502,7 @@ dashboard_layout = html.Div([
                 style={'width': '30%', 'padding-right': '5%', 'padding-top': '20px'}
             ),
             html.Div(
+                id='neighbourhood-div',
                 children=[
                     html.Label(['Neighbourhood type:']),
                     dcc.Dropdown(
@@ -513,7 +514,6 @@ dashboard_layout = html.Div([
                         persistence=True,
                     ),
                 ],
-                style={'width': '30%'}
             ),
         ],
         style={'display': 'flex'}
@@ -541,6 +541,7 @@ dashboard_layout = html.Div([
     html.Div(
         children=[
             html.Div(
+                id='maximize-div',
                 children=[
                     html.Label(['Metric to maximize:']),
                     dcc.Dropdown(
@@ -549,9 +550,9 @@ dashboard_layout = html.Div([
                         persistence=True,
                     ),
                 ],
-                style={'width': '22%', 'padding-right': '4%'}
             ),
             html.Div(
+                id='scores-div',
                 children=[
                     html.Label(['Scores to report:']),
                     dcc.Dropdown(
@@ -560,9 +561,9 @@ dashboard_layout = html.Div([
                         persistence=True,
                     ),
                 ],
-                style={'width': '22%', 'padding-right': '4%'}
             ),
             html.Div(
+                id='curves-div',
                 children=[
                     html.Label(['Curves to compute:']),
                     dcc.Dropdown(
@@ -576,15 +577,14 @@ dashboard_layout = html.Div([
                         persistence=True,
                     ),
                 ],
-                style={'width': '22%', 'padding-right': '4%'}
             ),
             html.Div(
+                id='precatk-div',
                 children=[
                     html.Label(['Precision@k values:']),
                     dcc.Input(id="ib-precatk", className='input-box', type="text", value=init_vals['ib-precatk'],
                               placeholder='K values for Prec@k (e.g. 1 10 100 1000)', persistence=True),
                 ],
-                style={'width': '22%'}
             ),
         ],
         style={'display': 'flex'}
@@ -603,16 +603,38 @@ dashboard_layout = html.Div([
 ])
 
 
-# -------------
-#   Callbacks
-# -------------
+# --------------------------
+#         Callbacks
+# --------------------------
+
+@app.callback(Output("global-r3-div", "style"),
+              Input("task-dropdown", "value"))
+def render_metrics_section(task):
+    """ Renders the global section hiding/showing elements based on the task evaluated. """
+
+    if task == 'nc':
+        return {'display': 'none'}
+    else:
+        return {'display': 'flex'}
+
+
+@app.callback(Output("neighbourhood-div", "style"),
+              Input("network-types", "value"))
+def toggle_neigh_visibility(val):
+    if val == 'dir':
+        return {'width': '30%'}
+    else:
+        return {'display': 'none'}
+
 
 @app.callback(Output("modal-sm", "is_open"),
               Output("modal-sm", "children"),
               Input("exp-conf", "n_clicks"),
               Input("clr-conf", "n_clicks"),
-              State("modal-sm", "is_open"))
-def toggle_modal(n1, n2, is_open):
+              Input("run-eval", "n_clicks"),
+              State("modal-sm", "is_open"),
+              State('settings-data', 'data'))
+def toggle_modal(n1, n2, n3, is_open, settings_data):
     ctx = callback_context
     if not ctx.triggered:
         raise PreventUpdate
@@ -622,6 +644,17 @@ def toggle_modal(n1, n2, is_open):
             return not is_open, [dbc.ModalHeader(dbc.ModalTitle("Config exported successfully!"), close_button=False)]
         elif button_id == 'clr-conf':
             return not is_open, [dbc.ModalHeader(dbc.ModalTitle("Config cleared successfully!"), close_button=False)]
+        elif button_id == 'run-eval':
+            settings_data = json.loads(settings_data)
+            if settings_data[0] == '':
+                exec_path = sys.executable
+            else:
+                exec_path = settings_data[0]
+            if evalne_installed(exec_path):
+                raise PreventUpdate
+            else:
+                return not is_open, [dbc.ModalHeader(dbc.ModalTitle("EvalNE is not installed in the current env!"),
+                                                     close_button=False)]
         else:
             raise PreventUpdate
 
@@ -631,7 +664,7 @@ def toggle_modal(n1, n2, is_open):
               Input('btnUpdt-interval', 'n_intervals'))
 def set_run_button_state(n_intervals):
     """ Periodic function that checks if an evaluation is running and updates the style of the Start/Stop button. """
-    proc = search_process('evalne')
+    proc = search_process('-m evalne')
     if proc is None:
         return ['btn btn-square btn-run', 'Start Evaluation']
     else:
@@ -652,7 +685,7 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals, settings_data):
     else:
         if int(n_clicks) % 2 == 0:
             # Even clicks stop eval and set button text to `Run Evaluation`
-            stop_process('evalne')
+            stop_process('-m evalne')
             return n_clicks
         else:
             # Odd clicks start eval and set button to `Stop Evaluation`
@@ -933,6 +966,30 @@ def toggle_method_style(m_type):
     else:
         raise PreventUpdate
 
+
+@app.callback(Output("maximize-div", "style"),
+              Output("scores-div", "style"),
+              Output("curves-div", "style"),
+              Output("precatk-div", "style"),
+              Input("task-dropdown", "value"))
+def render_metrics_section(task):
+    """ Renders the metrics section based on the task evaluated. """
+
+    if task == 'nc':
+        return [{'width': '48%', 'padding-right': '4%'},
+                {'width': '48%'},
+                {'display': 'none'},
+                {'display': 'none'}]
+    else:
+        return [{'width': '22%', 'padding-right': '4%'},
+                {'width': '22%', 'padding-right': '4%'},
+                {'width': '22%', 'padding-right': '4%'},
+                {'width': '22%'}]
+
+
+# --------------------------
+#      Other Functions
+# --------------------------
 
 def append_children_divs(val):
     children = []

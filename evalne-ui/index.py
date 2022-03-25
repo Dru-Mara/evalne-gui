@@ -99,10 +99,16 @@ app.layout = html.Div([
 ], style={'margin': 0, 'padding': 0, 'flex': 1})
 
 
+# --------------------------
+#         Callbacks
+# --------------------------
+
 @app.callback([Output('tabs-header', 'children'),
               Output('tabs-content-classes', 'children')],
               [Input('main-tabs', 'value')])
 def render_content(tab):
+    """ Renders the page content based on the tab selected by the user. """
+
     if tab == 'dashboard':
         return html.Div([
             html.H3('Dashboard', className='header-title')

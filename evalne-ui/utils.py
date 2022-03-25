@@ -12,7 +12,7 @@ import base64
 import datetime
 import configparser
 import numpy as np
-from subprocess import Popen
+from subprocess import Popen, run
 from init_values import init_vals
 from collections import OrderedDict
 
@@ -56,7 +56,7 @@ def start_process(cmd, console_out, cwd=None, verbose=True):
     # with Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE, cwd=cwd) as proc:
     #    log.write(proc.stdout.read())
 
-    print('EvalNE process started!')
+    # print('EvalNE process started!')
 
 
 def stop_process(process_name):
@@ -64,7 +64,7 @@ def stop_process(process_name):
     proc = search_process(process_name)
     if proc is not None:
         proc.kill()
-        print('EvalNE process killed!')
+        # print('EvalNE process killed!')
 
 
 def search_process(process_name):
@@ -73,6 +73,18 @@ def search_process(process_name):
         if process_name in shlex.join(proc.cmdline()):
             return proc
     return None
+
+
+def evalne_installed(exec_path):
+    cmd = "{} -c 'import evalne;'".format(exec_path)
+    res = True
+    try:
+        devnull = open(os.devnull, 'w')
+        run(shlex.split(cmd), stdout=devnull, stderr=devnull, check=True)
+    except:
+        res = False
+
+    return res
 
 
 def get_proc_info(process_name):
@@ -421,14 +433,18 @@ def get_logged_evals(path):
                 # Get end time
                 aux.append(end_time)
             res.append(aux)
+    res = sorted(res, reverse=True, key=lambda x: x[0])
     return res
 
 
-def read_file(path, filename):
+def read_file(path, filename, console=False):
     try:
         f = open(os.path.join(path, filename), 'r')
         text = f.read()
         f.close()
         return text
-    except:
-        return 'No output file found! Evaluation has failed or is still running...'
+    except FileNotFoundError:
+        if console:
+            return 'ERROR: Output not found! Start a new evaluation to see the output...'
+        else:
+            return 'ERROR: File not found! Evaluation is still running or has failed...'

@@ -40,10 +40,17 @@ runs_layout = html.Div([
 ])
 
 
+# --------------------------
+#         Callbacks
+# --------------------------
+
 @app.callback(Output('logged-eval-table', 'children'),
               Input('runs-update-interval', 'n_intervals'),
               State('settings-data', 'data'))
 def update_table(n, settings_data):
+    """ Updates the `Runs` table. """
+
+    # Table header
     cols = ['Filename', 'Status', 'Runtime', 'Start Time', 'End Time']
 
     # Read eval_path from settings and get the evaluations logged there

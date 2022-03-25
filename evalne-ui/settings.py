@@ -78,9 +78,9 @@ settings_layout = html.Div([
 ])
 
 
-# -------------
-#   Callbacks
-# -------------
+# --------------------------
+#         Callbacks
+# --------------------------
 
 @app.callback([[Output(key, 'value') for key in init_settings.keys()]],
               Output('settings-data', 'data'),
@@ -89,6 +89,7 @@ settings_layout = html.Div([
               State('settings-data', 'data'))
 def refresh_config(data, nclick, old_data):
     """ This function stores and loads settings from a dcc.Store on page-refresh/tab-change/user-action. """
+
     ctx = callback_context
 
     if not ctx.triggered:

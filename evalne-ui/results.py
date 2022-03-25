@@ -41,10 +41,17 @@ results_layout = html.Div([
 ])
 
 
+# --------------------------
+#         Callbacks
+# --------------------------
+
 @app.callback(Output('eval-tabs-table', 'children'),
               Input('res-update-interval', 'n_intervals'),
               State('settings-data', 'data'))
 def update_table(n, settings_data):
+    """ Updates the `Runs and Results` table. """
+
+    # Table header
     cols = ['Filename', 'Status', 'Runtime', 'Start Time', 'End Time']
 
     # Read eval_path from settings and get the evaluations logged there
@@ -53,8 +60,12 @@ def update_table(n, settings_data):
         eval_path = os.getcwd()
     else:
         eval_path = settings_data[1]
-    rows = get_logged_evals(eval_path)
+    try:
+        rows = get_logged_evals(eval_path)
+    except FileNotFoundError:
+        rows = []
 
+    # Present evaluations as rows in a table
     table = [
         html.Table(
             children=[
@@ -69,18 +80,15 @@ def update_table(n, settings_data):
         )
     ]
 
+    # Dash Tables cannot have expandable rows, so workaround having each row be a table in itself
     table += [
         html.Details(
-            id='details',
             children=[
                 html.Summary(
-                    id='summary',
                     children=[
                         html.Table(
-                            id='reslist-table',
                             children=[
                                 html.Tr(
-                                    className='reslist',
                                     children=[
                                         html.Td(v) for v in row
                                     ],

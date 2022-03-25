@@ -1,7 +1,7 @@
 numpy
-networkx
-scipy
-pandas
+plotly
 dash
-fa2
 dash-daq
+dash_bootstrap_components
+fa2
+psutil

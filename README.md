@@ -52,10 +52,18 @@
 - [x] Allow user to select evaluation path and pythonpath in settings menu.
 - [ ] Make EvalNE proc a class with start/stop/info
 - [ ] Fix Readme and documentation for this project. E.g. no installation needed
-- [ ] Upload EvalNE-UI to pip
 - [ ] Use pipes instead of a file to read/write onto the UI console e.g.
 https://codereview.stackexchange.com/questions/6567/redirecting-subprocesses-output-stdout-and-stderr-to-the-logging-module
 - [ ] Switch to production server instead of dev.
+- [x] Inform the user when EvalNE is not installed in the current env.
+- [ ] Make the UI a pip installable package
+- [ ] Change name so there are no import issues
+- [x] For NC remove last row of the first div in Dashboard and precision@k values
+- [x] Make neighbourhood type disappear if networks are undirected
+- [ ] Make config files with relative paths work!
+- [ ] Ensure stop eval actually stops the evaluation
+- [ ] Ensure that hiding elements in UI and logic in generating conf file are coherent
+- [ ] Scores seems to lose its value when task is changed
 
 Other changes to EvalNE/EvalNE-UI
 - [ ] The conf.ini values and descriptions in the conf.ini of evalne should be changed. 
