@@ -6,6 +6,8 @@
 
 import dash
 
+
+# Load external styles
 external_stylesheets = [{
     'href': 'https://use.fontawesome.com/releases/v5.8.1/css/all.css',
     'rel': 'stylesheet',
@@ -13,6 +15,7 @@ external_stylesheets = [{
     'crossorigin': 'anonymous'
 }]
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets, suppress_callback_exceptions=True,
-                update_title=None)
+# Instantiate the app and server
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets,
+                suppress_callback_exceptions=True, update_title=None)
 server = app.server

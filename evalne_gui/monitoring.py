@@ -9,11 +9,11 @@ import json
 import psutil
 import plotly.graph_objects as go
 
-from app import app
+from evalne_gui.app import app
 from dash.dependencies import Input, Output
 from dash import dcc, State, html
 from collections import deque
-from utils import get_proc_info, read_file
+from evalne_gui.utils import get_ui_proc, get_evalne_proc, read_file
 
 # --------------------------
 #      Plot variables
@@ -240,14 +240,13 @@ def update_tables(n):
 def update_tables(n):
     """ Periodically updates the EvalNE-UI and EvalNE proc info tables. """
 
-    aux = []
-    proc_names = ['index', '-m evalne']
-    for name in proc_names:
-        aux.append(get_proc_info(name))
+    # Get process info for the tables
+    ui_proc_info = get_ui_proc().info()
+    evalne_proc_info = get_evalne_proc().info()
 
     return [
-        generate_table('proc-info', aux[0], None, 'EvalNE-UI Process Info'),
-        generate_table('proc2-info', aux[1], None, 'EvalNE Process Info'),
+        generate_table('proc-info', ui_proc_info, None, 'EvalNE-UI Process Info'),
+        generate_table('proc2-info', evalne_proc_info, None, 'EvalNE Process Info'),
     ]
 
 

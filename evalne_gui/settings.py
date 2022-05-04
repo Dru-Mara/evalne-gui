@@ -8,7 +8,7 @@ import os
 import sys
 import json
 
-from app import app
+from evalne_gui.app import app
 from dash import callback_context
 from dash import dcc, State, html
 from dash.dependencies import Input, Output

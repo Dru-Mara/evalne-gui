@@ -1,30 +1,24 @@
-# EvalNE-UI: A User Interface for <a href="https://github.com/Dru-Mara/EvalNE">EvalNE</a> #
+# EvalNE-GUI: The Graphical User Interface for <a href="https://github.com/Dru-Mara/EvalNE">EvalNE</a> #
 
 <div id="top"></div>
 
 [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/aida-ugent/evalne-ui-dev/issues)
 [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/aida-ugent/evalne-ui-dev/blob/master/LICENSE)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
-[![made-with-sphinx-doc](https://img.shields.io/badge/Made%20with-Sphinx-1f425f.svg)](https://www.sphinx-doc.org/)
 
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
   <ol>
-    <li>
-      <a href="#about-evalne">About EvalNE</a>
-      <ul>
-        <li><a href="#for-methodologists">For methodologists</a></li>
-        <li><a href="#for-practitioners">For practitioners</a></li>
-      </ul>
-    </li>
+    <li><a href="#about">About EvalNE-GUI</a></li>
     <li><a href="#installation">Installation</a></li>
     <li>
       <a href="#usage">Usage</a>
         <ul>
-          <li><a href="#as-a-command-line-tool">As a command line tool</a></li>
-          <li><a href="#as-an-api">As an API</a></li>
-          <li><a href="#output">Output</a></li>
+          <li><a href="#dashboard-tab">Dashboard tab</a></li>
+          <li><a href="#monitoring-tab">Monitoring tab</a></li>
+          <li><a href="#runs-&-results-tab">Runs & Results tab</a></li>
+          <li><a href="#settings-tab">Settings tab</a></li>
         </ul>
     </li>
     <li><a href="#contributing">Contributing</a></li>
@@ -50,89 +44,86 @@
 - [x] Fill in Runs tab
 - [x] Collect in Results the evaluation outputs of previous runs
 - [x] Allow user to select evaluation path and pythonpath in settings menu.
-- [ ] Make EvalNE proc a class with start/stop/info
-- [ ] Fix Readme and documentation for this project. E.g. no installation needed
-- [ ] Use pipes instead of a file to read/write onto the UI console e.g.
-https://codereview.stackexchange.com/questions/6567/redirecting-subprocesses-output-stdout-and-stderr-to-the-logging-module
-- [ ] Switch to production server instead of dev.
 - [x] Inform the user when EvalNE is not installed in the current env.
-- [ ] Make the UI a pip installable package
-- [ ] Change name so there are no import issues
 - [x] For NC remove last row of the first div in Dashboard and precision@k values
 - [x] Make neighbourhood type disappear if networks are undirected
+- [x] Scores seems to lose its value when task is changed
+- [x] Fix Readme and documentation for this project. E.g. no installation needed
+- [x] Switch to production server instead of dev.
+- [x] Make the UI a pip installable package with evalne_gui as entry point
+- [x] Change package name to evalne_gui
+- [x] Fix evalne_gui proc monitoring
+- [x] Make EvalNE proc a class with start/stop/info
 - [ ] Make config files with relative paths work!
 - [ ] Ensure stop eval actually stops the evaluation
 - [ ] Ensure that hiding elements in UI and logic in generating conf file are coherent
-- [ ] Scores seems to lose its value when task is changed
+- [ ] Use pipes instead of a file to read/write onto the UI console e.g.
+https://codereview.stackexchange.com/questions/6567/redirecting-subprocesses-output-stdout-and-stderr-to-the-logging-module
 
-Other changes to EvalNE/EvalNE-UI
+Other changes to EvalNE/EvalNE-GUI
 - [ ] The conf.ini values and descriptions in the conf.ini of evalne should be changed. 
 - [ ] Better variable names and fix description issues. For NC we should use the 'lp_model' as the binary classifier.
-
-Inspiration for the UI: https://github.com/Jahaja/psdash and https://afaqurk.github.io/linux-dash/#/system-status
+- [ ] Add data visualization tab to EvalNE-GUI. Allows to visualize node/edge embeddings, eval parameters, 
+eval times, predictions for each node/edge, input graphs
+ 
+Inspiration for the GUI: https://github.com/Jahaja/psdash and https://afaqurk.github.io/linux-dash/#/system-status
 
 ## About ##
 
-This repository provides the source code for the EvalNE-UI, an open-source user interface for EvalNE based on
-Plotly Dash. The interface allows users to interact with the evaluation toolbox in an intuitive and visual way.
-More information about EvalNE can be found in the official repo, [here](https://github.com/Dru-Mara/EvalNE), and 
-the user documentation, [here](https://evalne.readthedocs.io/en/latest/). This library and the official EvalNE 
-implementations are maintained by Alexandru Mara (alexandru.mara(at)ugent.be).
+This repository contains the source code of the EvalNE-GUI, an open-source graphical user interface for EvalNE 
+based on Plotly's Dash framework. The interface allows users to set up and execute EvalNE evaluations in an 
+intuitive and interactive way, monitor system resources and browse previous evaluations. More information about 
+EvalNE can be found in the official [GitHub repo](https://github.com/Dru-Mara/EvalNE), and the 
+[user documentation](https://evalne.readthedocs.io/en/latest/). This library and the official EvalNE implementations are 
+maintained by Alexandru Mara (alexandru.mara(at)ugent.be).
 
-The main functionalities of the library include:
+In summary, the main functionalities of the EvalNE-GUI include:
 
-* A dashboard that allows users to specify all evaluation parameters
-* Functionalities for running evaluations
-* Tools to import and export EvalNE config files
-* A system monitoring interface to keep track of the resources used by the toolbox
-* Functionalities to explore evaluation logs and past runs 
+* A dashboard that allows users to specify evaluation parameters
+* Tools for importing and exporting EvalNE configuration files
+* Functionalities for running evaluations directly from the EvalNE-GUI
+* Live monitoring of the system resources used by EvalNE and the EvalNE-GUI
+* Functionalities for exploring past evaluation setups, logs and results 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-## Instalation ## 
+## Installation ## 
 
-The user interface has been tested on Python 3.8 and depens on the following packages:
+The user interface has been tested on Python 3.8 and requires the following packages:
 
-* evalne
 * numpy
-* scipy
-* pandas
-* networkX
-* scikit-learn
+* plotly
 * dash
 * dash-daq
-* f2a
+* dash_bootstrap_components
+* fa2
+* psutil
+* evalne (optional)
 
-Before installing the EvalNE-UI make sure that `pip` and `python-tk` packages are installed 
-on your system, this can be done by running:
-```bash
-sudo apt-get install python3-pip
-sudo apt-get install python3-tk
-```
+**NOTE:** The evalne package is not a strict dependency of the GUI. This package can be installed in any 
+other virtual environment but the appropriate path to it must then be specified in the EvalNE-GUI Settings tab. 
+If evalne is not detected when an evaluation is started from the GUI, an error message will be displayed. 
+
+The EvalNE-GUI can be installed from pip or by cloning the GitHub repository: 
 
 **Option 1:** Install the library using pip:
 ```bash
-pip3 install evalne-ui
+pip3 install evalne_gui
 ```
 
-**Option 2:** Cloning the code and installing:
-
-- Clone the EvalNE-UI repository:
-    ```bash
-    git clone https://github.com/aida-ugent/evalne-ui-dev
-    cd EvalNE-ui
-    ```
-
-- Download library dependencies and install:
-    ```bash
-    pip3 install -r requirements.txt
-    sudo python3 setup.py install
-    ```
-
-To launch the UI simply execute the index.py Python file. This will open a new browser tab showing the UI.
+**Option 2:** Cloning the repository and installing:
 ```bash
-python3 index.py
+git clone https://github.com/aida-ugent/evalne-gui
+cd EvalNE-gui
+python3 setup.py install
+```
+
+To launch the GUI simply execute the `evalne-gui` script. Alternatively, the index.py file can be executed 
+using Python. A new browser tab will open showing the user interface.
+```bash
+evalne_gui
+# Alternatively: python3 evalne_gui 
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -140,30 +131,44 @@ python3 index.py
 
 ## Usage ##
 
-The UI features 4 tabs which provide access to the Dashboard, system Monitoring, evaluation Runs 
-and experimental Results. 
+The EvalNE-GUI features 4 tabs which provide access to the evaluation **Dashboard**, system resource **Monitoring**, 
+previous **Runs & Results** and general app **Settings**. 
 
 <div align="center">
-<img src="screenshots/ui.png" alt="UI" height="900">
+<img src="img/Dash1.png" alt="UI" height="900">
 </div>
 
-In the Dashboard tab the user can specify evaluation parameters. This can be done by manually 
-setting each parameter or by importing existing conf files. Once the required parameters are set,
-the evaluation can be launched using the `Run Evaluation` button. 
+### Dashboard tab ###
+This tab allows users to specify all the evaluation parameters, from the data and methods to use to the downstream
+task, results to report, etc. This can be done either manually or by importing an existing EvalNE config file. 
+Once all required parameters are set, an evaluation can be launched using the `Run Evaluation` button. Evaluations 
+can be stopped at any time by pressing the `Stop Evaluation` button. Config files can be imported and exported 
+using the appropriate buttons and the default parameter values can be restored using `Clear Config`. 
 
-The Monitoring tab contains plots displaying the main system resources such as CPU, GPU, RAM and DISK use. 
-In addition to this, the tab also provides specific information regarding the EvalNE evaluation processes 
-being executed such as stage of the execution and resources consumed.
+**NOTE:** The EvalNE-GUI persists all values inputted in any field. Tabs can be switched and the app can even be 
+closed without these values being lost.
 
-The Runs and Results tabs summarize previous evaluation runs providing access to the evaluation logs and 
-results.
+### Monitoring tab ###
+The Monitoring tab contains plots displaying the main system resources used such as CPU and RAM. 
+In addition to this, the tab also provides specific information regarding the EvalNE (when running) and EvalNE-GUI 
+processes such as status, resources used, current working directory, etc. Finally, the output of the current or 
+last evaluation launched (if any), is also displayed. 
+
+### Runs & Results tab ###
+The Runs and Results tab summarizes current and previous evaluation runs. For each run the filename, status 
+(running, failed, finished), runtime, and the start and end times are displayed. By clicking on any run the 
+evaluation logs and results can also be visualized.
+
+### Settings tab ###
+This tab allows users to specify global EvalNE parameters such as the path there the library is installed
+(if different from the EvalNE-GUI installation path) or the folder where to store new evaluation runs.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
 ## Contributing
 
-Contributions are **greatly appreciated**. If you want to help us improve the EvalNE-UI, 
+Contributions are **greatly appreciated**. If you want to help us improve the EvalNE-GUI, 
 please fork the repo and create a new pull request. Don't forget to give the project a star! Thanks!
 
 1. Fork the Project
@@ -187,7 +192,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 
 ## Citation ##
 
-If you have found EvaNE or the EvalNE-UI useful in your research, please consider giving the repo a star 
+If you have found EvaNE or the EvalNE-GUI useful in your research, please consider giving our repos a star 
 and citing our [arXiv paper](https://arxiv.org/abs/1901.09691):
 
 ```bibtex

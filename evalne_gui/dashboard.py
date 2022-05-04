@@ -9,13 +9,13 @@ import sys
 import json
 import dash_bootstrap_components as dbc
 
-from app import app
+from evalne_gui.app import app
 from dash import callback_context
 from dash.dependencies import Input, Output
 from dash import dcc, State, html, ALL, MATCH
 from dash.exceptions import PreventUpdate
-from utils import *
-from init_values import *
+from evalne_gui.utils import *
+from evalne_gui.init_values import *
 
 
 maximize_opts = [{'label': 'AUROC', 'value': 'auroc'},
@@ -82,7 +82,7 @@ dashboard_layout = html.Div([
     # --------------------------
     #    Global and sampling
     # --------------------------
-    html.H3(children='Global and Edge Sampling Parameters', className='section-title'),
+    html.H3(children='Global and Node/Edge Sampling Parameters', className='section-title'),
     html.Hr(className='sectionHr'),
     html.Br(),
 
@@ -166,7 +166,7 @@ dashboard_layout = html.Div([
     # EMBED_DIM (text check integer)
     # TIMEOUT (text check integer)
     # SEED (text check integer)
-    # VERBOSE (checkbox)
+    # VERBOSE (checkbox)?
     html.Div(
         children=[
             html.Div(
@@ -305,7 +305,7 @@ dashboard_layout = html.Div([
         children=[
             html.Label(['Network names:']),
             dcc.Input(id="ib-nwnames", className='input-box', type="text", value=init_vals['ib-nwnames'],
-                      placeholder="Insert network names separated with blanks...", persistence=True),
+                      placeholder="Insert network names split by blanks...", persistence=True),
         ],
     ),
     html.Br(),
@@ -360,7 +360,7 @@ dashboard_layout = html.Div([
                 children=[
                     html.Label(['Separator per edgelist file:']),
                     dcc.Input(id="ib-separator", className='input-box', type="text", value=init_vals['ib-separator'],
-                              placeholder="Insert separators with banks...", persistence=True),
+                              placeholder="Insert separators split by blanks...", persistence=True),
                 ],
                 style={'width': '30%', 'padding-right': '5%'}
             ),
@@ -368,7 +368,7 @@ dashboard_layout = html.Div([
                 children=[
                     html.Label(['Comment char per edgelist file:']),
                     dcc.Input(id="ib-comment", className='input-box', type="text", value=init_vals['ib-comment'],
-                              placeholder="Insert comment chars with banks...", persistence=True),
+                              placeholder="Insert comment chars split by blanks...", persistence=True),
                 ],
                 style={'width': '30%'}
             ),
@@ -431,7 +431,7 @@ dashboard_layout = html.Div([
                     ),
                     html.Label(['Preprocessed edgelist delimiter:']),
                     dcc.Input(id="input-prep-delim", className='input-box', type="text",
-                              placeholder="Insert delimiter...",
+                              placeholder="Insert or select delimiter...",
                               list='delim-opts', persistence=True),
                 ],
                 style={'width': '30%'}
@@ -442,9 +442,9 @@ dashboard_layout = html.Div([
     ]),
 
     # --------------------------
-    #  Baselines and NE methods
+    #  Heuristics and NE methods
     # --------------------------
-    html.H3(children='Baselines and NE Methods', className='section-title'),
+    html.H3(children='Heuristics and Embedding Methods', className='section-title'),
     html.Hr(className='sectionHr'),
     html.Br(),
 
@@ -461,10 +461,11 @@ dashboard_layout = html.Div([
     # INPUT_DELIM
     # OUTPUT_DELIM
     html.Div(
+        id='heuristic-bl-div',
         children=[
             html.Div(
                 children=[
-                    html.Label(['Baseline methods:']),
+                    html.Label(['Heuristic baselines:']),
                     dcc.Checklist(
                         id='baselines-checklist',
                         options=[
@@ -516,10 +517,9 @@ dashboard_layout = html.Div([
                 ],
             ),
         ],
-        style={'display': 'flex'}
     ),
-    html.Br(),
-    html.Div(id='method', children=[]),
+    html.Label(['Embedding methods:']),
+    html.Div(id='method', children=[], style={'margin-top': '10px'}),
     html.Div([
         html.Button('+ Add method', id='add-method', className='btn btn-square btn-sm', n_clicks=1),
         html.Button('- Delete method', id='delete-method', className='btn btn-square btn-sm', n_clicks=0),
@@ -609,7 +609,7 @@ dashboard_layout = html.Div([
 
 @app.callback(Output("global-r3-div", "style"),
               Input("task-dropdown", "value"))
-def render_metrics_section(task):
+def render_global_section(task):
     """ Renders the global section hiding/showing elements based on the task evaluated. """
 
     if task == 'nc':
@@ -625,6 +625,15 @@ def toggle_neigh_visibility(val):
         return {'width': '30%'}
     else:
         return {'display': 'none'}
+
+
+@app.callback(Output("heuristic-bl-div", "style"),
+              Input("task-dropdown", "value"))
+def toggle_heuristics_visibility(task):
+    if task == 'nc':
+        return {'display': 'none'}
+    else:
+        return {'display': 'flex', 'margin-bottom': '20px'}
 
 
 @app.callback(Output("modal-sm", "is_open"),
@@ -664,8 +673,8 @@ def toggle_modal(n1, n2, n3, is_open, settings_data):
               Input('btnUpdt-interval', 'n_intervals'))
 def set_run_button_state(n_intervals):
     """ Periodic function that checks if an evaluation is running and updates the style of the Start/Stop button. """
-    proc = search_process('-m evalne')
-    if proc is None:
+    running = get_evalne_proc().running()
+    if not running:
         return ['btn btn-square btn-run', 'Start Evaluation']
     else:
         return ['btn btn-square btn-run btn-active', 'Stop Evaluation']
@@ -685,7 +694,7 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals, settings_data):
     else:
         if int(n_clicks) % 2 == 0:
             # Even clicks stop eval and set button text to `Run Evaluation`
-            stop_process('-m evalne')
+            get_evalne_proc().stop()
             return n_clicks
         else:
             # Odd clicks start eval and set button to `Stop Evaluation`
@@ -709,7 +718,8 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals, settings_data):
 
             # Export conf.ini and run evaluation
             export_config_file(ini_path, conf_dict, methods_dict)
-            start_process('{} -m evalne {}'.format(exec_path, ini_path), console_out, eval_path, True)
+            proc = get_evalne_proc()
+            proc.start('{} -m evalne {}'.format(exec_path, ini_path), console_out, eval_path, True)
 
             return n_clicks
 
@@ -1128,7 +1138,8 @@ def get_method_div(val):
                                         id={
                                             'index': val,
                                             'type': 'm-input-delim'
-                                        }, className='input-box', type="text", placeholder="Insert delimiter...",
+                                        }, className='input-box', type="text",
+                                        placeholder="Insert or select delimiter...",
                                         list='delim-opts', persistence=False, debounce=True),
                                 ],
                                 style={'width': '22%', 'padding-right': '4%'}
@@ -1144,7 +1155,8 @@ def get_method_div(val):
                                         id={
                                             'index': val,
                                             'type': 'm-output-delim'
-                                        }, className='input-box', type="text", placeholder="Insert delimiter...",
+                                        }, className='input-box', type="text",
+                                        placeholder="Insert or select delimiter...",
                                         list='delim-opts', persistence=False, debounce=True),
                                 ],
                                 style={'width': '22%'}

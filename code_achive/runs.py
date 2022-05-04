@@ -7,10 +7,11 @@
 import os
 import json
 
-from app import app
+from evalne_gui.app import app
 from dash.dependencies import Input, Output
 from dash import dcc, State, html
-from utils import get_logged_evals
+from evalne_gui.utils import get_logged_evals
+
 
 runs_layout = html.Div([
 

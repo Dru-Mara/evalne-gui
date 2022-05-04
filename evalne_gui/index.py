@@ -3,25 +3,14 @@
 # Author: Mara Alexandru Cristian
 # Contact: alexandru.mara@ugent.be
 # Date: 22/03/2021
-# Run this app with `python index.py` and
-# visit http://127.0.0.1:8050/ in your web browser.
 
-import webbrowser
-
-from threading import Timer
-from app import app
+from evalne_gui.app import app
 from dash.dependencies import Input, Output
 from dash import dcc, State, html
-from settings import settings_layout
-from results import results_layout
-from dashboard import dashboard_layout
-from monitoring import monitoring_layout
-# from runs import runs_layout
-
-
-def open_browser():
-    port = 8050
-    webbrowser.open_new("http://localhost:{}".format(port))
+from evalne_gui.settings import settings_layout
+from evalne_gui.results import results_layout
+from evalne_gui.dashboard import dashboard_layout
+from evalne_gui.monitoring import monitoring_layout
 
 
 app.layout = html.Div([
@@ -75,12 +64,6 @@ app.layout = html.Div([
                     className='custom-tab monitoring-tab',
                     selected_className='custom-tab--selected'
                 ),
-                # dcc.Tab(
-                #     label='Runs',
-                #     value='runs',
-                #     className='custom-tab runs-tab',
-                #     selected_className='custom-tab--selected'
-                # ),
                 dcc.Tab(
                     label='Runs & Results',
                     value='results',
@@ -95,7 +78,7 @@ app.layout = html.Div([
                 ),
             ]),
         html.Div(id='tabs-content-classes', className='tabs-content')
-    ], style={'display': 'flex'}),
+    ], style={'display': 'flex', 'position': 'absolute', 'min-height': '100%', 'width': '100%'}),
 ], style={'margin': 0, 'padding': 0, 'flex': 1})
 
 
@@ -117,10 +100,6 @@ def render_content(tab):
         return html.Div([
             html.H3('Monitoring', className='header-title')
         ]), monitoring_layout
-    # elif tab == 'runs':
-    #     return html.Div([
-    #         html.H3('Runs', className='header-title')
-    #     ]), runs_layout
     elif tab == 'results':
         return html.Div([
             html.H3('Runs & Results', className='header-title')
@@ -129,8 +108,3 @@ def render_content(tab):
         return html.Div([
             html.H3('Settings', className='header-title')
         ]), settings_layout
-
-
-if __name__ == '__main__':
-    Timer(1, open_browser).start()
-    app.run_server(debug=True, port=8050, host='localhost', use_reloader=False)

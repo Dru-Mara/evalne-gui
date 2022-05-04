@@ -13,58 +13,18 @@ import datetime
 import configparser
 import numpy as np
 from subprocess import Popen, run
-from init_values import init_vals
 from collections import OrderedDict
+from evalne_gui.procinfo import EvalneProc
+from evalne_gui.init_values import init_vals
 
 
-def start_process(cmd, console_out, cwd=None, verbose=True):
-    """
-    Runs the cmd command provided as input in a new process.
-
-    Parameters
-    ----------
-    cmd : string
-        A string indicating the command to run on the command line.
-    console_out: string
-        Path to a file where the stdout and stderr will writen.
-    cwd : string
-        The working directory for the new process spawned.
-    verbose : bool
-        Boolean indicating if the execution output should be shown or not (pipes stdout and stderr to devnull).
-
-    Examples
-    --------
-    Runs a command that prints Start, sleeps for 5 seconds and prints Done
-
-    >>> start_process("python -c 'import time; print(\"Start\"); time.sleep(5); print(\"Done\")'", True)
-    Start
-    Done
-
-    """
-    if cwd is None:
-        cwd = os.getcwd()
-    if verbose:
-        sto = open(console_out, 'w')
-        ste = open(console_out, 'w')
-    else:
-        devnull = open(os.devnull, 'w')
-        sto = devnull
-        ste = devnull
-
-    Popen(shlex.split(cmd), stdout=sto, stderr=ste, cwd=cwd)
-
-    # with Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE, cwd=cwd) as proc:
-    #    log.write(proc.stdout.read())
-
-    # print('EvalNE process started!')
+def get_ui_proc():
+    return EvalneProc(psutil.Process())
 
 
-def stop_process(process_name):
-    """ Stops a process using the process name. """
-    proc = search_process(process_name)
-    if proc is not None:
-        proc.kill()
-        # print('EvalNE process killed!')
+def get_evalne_proc():
+    p = search_process('-m evalne')
+    return EvalneProc(p)
 
 
 def search_process(process_name):
@@ -85,21 +45,6 @@ def evalne_installed(exec_path):
         res = False
 
     return res
-
-
-def get_proc_info(process_name):
-    p = search_process(process_name)
-    proc = {
-        'PID': p.pid if p else 'Unknown',
-        'NAME': p.name() if p else 'Unknown',
-        'CMD_LINE': ' '.join(p.cmdline()) if p else 'Unknown',
-        'STATUS': p.status() if p else 'Unknown',
-        'MEM%': '{:.2f} %'.format(p.memory_percent()) if p else 'Unknown',
-        'CPU%': '{:.2f} %'.format(p.cpu_percent(0)) if p else 'Unknown',
-        'CWD': p.cwd() if p else 'Unknown',
-        'THREADS': p.num_threads() if p else 'Unknown',
-    }
-    return proc
 
 
 def import_config_file(contents):
@@ -401,7 +346,7 @@ def proc_nested_lists(val, lst):
 
 def get_logged_evals(path):
     res = []
-    for fname in os.listdir(path):
+    for fname in sorted(os.listdir(path), reverse=True):
         aux = []
         if '_eval_' in fname:
             # Get filename
@@ -416,7 +361,7 @@ def get_logged_evals(path):
                 if 'Evaluation end' in content[-1]:
                     aux.append('Finished')
                 else:
-                    if search_process('evalne') is not None:
+                    if len(res) == 0 and get_evalne_proc().running():
                         aux.append('Running')
                     else:
                         aux.append('Failed')
@@ -433,7 +378,6 @@ def get_logged_evals(path):
                 # Get end time
                 aux.append(end_time)
             res.append(aux)
-    res = sorted(res, reverse=True, key=lambda x: x[0])
     return res
 
 
@@ -445,6 +389,6 @@ def read_file(path, filename, console=False):
         return text
     except FileNotFoundError:
         if console:
-            return 'ERROR: Output not found! Start a new evaluation to see the output...'
+            return 'Output not found! Start an evaluation to monitor its output...'
         else:
-            return 'ERROR: File not found! Evaluation is still running or has failed...'
+            return 'File not found! Evaluation is still running or has failed...'
