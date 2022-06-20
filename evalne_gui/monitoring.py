@@ -14,6 +14,8 @@ from dash.dependencies import Input, Output
 from dash import dcc, State, html
 from collections import deque
 from evalne_gui.utils import get_ui_proc, get_evalne_proc, read_file
+from evalne_gui.init_values import *
+
 
 # --------------------------
 #      Plot variables
@@ -257,7 +259,10 @@ def update_tables(n):
 def update_output(n, settings_data):
     """ Periodically updates the evaluation output section by reading a `console.out` file. """
 
-    settings_data = json.loads(settings_data)
+    if settings_data is None:
+        settings_data = [val for val in init_settings.values()]
+    else:
+        settings_data = json.loads(settings_data)
     if settings_data[1] == '':
         eval_path = os.getcwd()
     else:

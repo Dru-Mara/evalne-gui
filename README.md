@@ -54,9 +54,11 @@
 - [x] Change package name to evalne_gui
 - [x] Fix evalne_gui proc monitoring
 - [x] Make EvalNE proc a class with start/stop/info
-- [ ] Make config files with relative paths work!
-- [ ] Ensure stop eval actually stops the evaluation
-- [ ] Ensure that hiding elements in UI and logic in generating conf file are coherent
+- [x] For NR task remove all sampling related fields (3rd row in Global section)
+- [x] Make config files with relative paths work!
+- [x] Ensure stop eval actually stops the evaluation (can't guarantee process kill... python problem)
+- [x] Ensure that hiding elements in UI and logic in generating conf file are coherent
+- [x] Change the name of the conf file being saved to something else than conf.ini
 - [ ] Use pipes instead of a file to read/write onto the UI console e.g.
 https://codereview.stackexchange.com/questions/6567/redirecting-subprocesses-output-stdout-and-stderr-to-the-logging-module
 

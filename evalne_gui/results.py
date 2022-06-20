@@ -11,6 +11,7 @@ from evalne_gui.app import app
 from dash.dependencies import Input, Output
 from dash import dcc, State, html
 from evalne_gui.utils import get_logged_evals, read_file
+from evalne_gui.init_values import *
 
 
 results_layout = html.Div([
@@ -55,7 +56,10 @@ def update_table(n, settings_data):
     cols = ['Filename', 'Status', 'Runtime', 'Start Time', 'End Time']
 
     # Read eval_path from settings and get the evaluations logged there
-    settings_data = json.loads(settings_data)
+    if settings_data is None:
+        settings_data = [val for val in init_settings.values()]
+    else:
+        settings_data = json.loads(settings_data)
     if settings_data[1] == '':
         eval_path = os.getcwd()
     else:

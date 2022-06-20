@@ -46,3 +46,6 @@ method_init_vals = OrderedDict({'m-lib-dropdown': 'other',
                                 'm-tune': '',
                                 'm-input-delim': '',
                                 'm-output-delim': ''})
+
+init_settings = OrderedDict({'ib-pythonpath': '',
+                             'ib-evalpath': ''})

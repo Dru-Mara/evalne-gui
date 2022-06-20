@@ -9,6 +9,7 @@ import sys
 import json
 import dash_bootstrap_components as dbc
 
+from datetime import datetime
 from evalne_gui.app import app
 from dash import callback_context
 from dash.dependencies import Input, Output
@@ -311,6 +312,9 @@ dashboard_layout = html.Div([
     html.Br(),
     html.Div([
         html.Label(['Network edgelist paths:']),
+        html.Abbr("\u003f", className='help-qm',
+                  title="In order to use relative paths the `evaluation folder` in Settings must be appropriately set.",
+                  ),
         dcc.Textarea(
             id='network-paths',
             placeholder='Insert network edgelist paths, one per line...',
@@ -612,7 +616,7 @@ dashboard_layout = html.Div([
 def render_global_section(task):
     """ Renders the global section hiding/showing elements based on the task evaluated. """
 
-    if task == 'nc':
+    if task == 'nc' or task == 'nr':
         return {'display': 'none'}
     else:
         return {'display': 'flex'}
@@ -654,7 +658,10 @@ def toggle_modal(n1, n2, n3, is_open, settings_data):
         elif button_id == 'clr-conf':
             return not is_open, [dbc.ModalHeader(dbc.ModalTitle("Config cleared successfully!"), close_button=False)]
         elif button_id == 'run-eval':
-            settings_data = json.loads(settings_data)
+            if settings_data is None:
+                settings_data = [val for val in init_settings.values()]
+            else:
+                settings_data = json.loads(settings_data)
             if settings_data[0] == '':
                 exec_path = sys.executable
             else:
@@ -698,7 +705,10 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals, settings_data):
             return n_clicks
         else:
             # Odd clicks start eval and set button to `Stop Evaluation`
-            settings_data = json.loads(settings_data)
+            if settings_data is None:
+                settings_data = [val for val in init_settings.values()]
+            else:
+                settings_data = json.loads(settings_data)
             if settings_data[0] == '':
                 exec_path = sys.executable
             else:
@@ -707,7 +717,7 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals, settings_data):
                 eval_path = os.getcwd()
             else:
                 eval_path = settings_data[1]
-            ini_path = os.path.join(eval_path, 'conf.ini')
+            ini_path = os.path.join(eval_path, 'conf_gui_{}.ini'.format(datetime.datetime.now().strftime("%m%d_%H%M")))
             console_out = os.path.join(eval_path, 'console.out')
 
             # Load config data
@@ -727,20 +737,29 @@ def start_stop_eval(n_clicks, conf_vals, methods_vals, settings_data):
 @app.callback(Output('exp-conf', 'n_clicks'),
               Input('exp-conf', 'n_clicks'),
               State('conf-values', 'data'),
-              State('method-values', 'data'))
-def export_config(n_clicks, conf_vals, methods_vals):
+              State('method-values', 'data'),
+              State('settings-data', 'data'))
+def export_config(n_clicks, conf_vals, methods_vals, settings_data):
     """ This function is executed when the user preses the export config button. """
     ctx = callback_context
 
     if not ctx.triggered:
         raise PreventUpdate
     else:
+        if settings_data is None:
+            settings_data = [val for val in init_settings.values()]
+        else:
+            settings_data = json.loads(settings_data)
+        if settings_data[1] == '':
+            eval_path = os.getcwd()
+        else:
+            eval_path = settings_data[1]
         conf_vals = json.loads(conf_vals)
         methods_vals = json.loads(methods_vals)
-        conf_path = './conf.ini'
+        conf_path = 'conf_gui_{}.ini'.format(datetime.datetime.now().strftime("%m%d_%H%M"))
         conf_dict = dict(zip(init_vals.keys(), conf_vals))
         methods_dict = dict(zip(method_init_vals.keys(), methods_vals))
-        export_config_file(conf_path, conf_dict, methods_dict)
+        export_config_file(os.path.join(eval_path, conf_path), conf_dict, methods_dict)
         return n_clicks
 
 
@@ -1097,6 +1116,10 @@ def get_method_div(val):
                     html.Div(
                         children=[
                             html.Label(['Method command line call:']),
+                            html.Abbr("\u003f", className='help-qm',
+                                      title="In order to use relative paths the `evaluation folder` "
+                                            "in Settings must be appropriately set.",
+                                      ),
                             dcc.Input(
                                 id={
                                     'index': val,

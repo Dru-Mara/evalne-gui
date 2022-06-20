@@ -12,11 +12,7 @@ from evalne_gui.app import app
 from dash import callback_context
 from dash import dcc, State, html
 from dash.dependencies import Input, Output
-from collections import OrderedDict
-
-
-init_settings = OrderedDict({'ib-pythonpath': '',
-                             'ib-evalpath': ''})
+from evalne_gui.init_values import *
 
 
 settings_layout = html.Div([
