@@ -20,14 +20,14 @@ app.layout = html.Div([
 
         # Title
         html.H1(
-            children='EvalNE Dashboard',
+            children='EvalNE-GUI',
             style={'textAlign': 'center',
                    'text-shadow': '4px 4px 5px #020202'}
         ),
 
         # Subtitle
         html.H2(
-            children='A Python library for evaluation network embedding methods.',
+            children='A Python library for evaluating network embedding methods.',
             style={'textAlign': 'center',
                    'text-shadow': '2px 2px 3px #020202',
                    'font-weight': '700'}

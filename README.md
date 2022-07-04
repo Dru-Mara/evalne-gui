@@ -27,49 +27,6 @@
   </ol>
 </details>
 
-## TODO ##
-
-- [x] Make tab data persistent, for when tabs are switched
-- [x] Make run evaluation actually fill in conf file and execute evalne
-- [x] Make import button work
-- [x] Add popup dialogs to show that data has been imported/exported/cleared
-- [x] Make export button work
-- [x] When exporting ensure methods with no name and cmd are ignored
-- [x] Change method options based on method type
-- [x] Fix button hoover
-- [x] Toggle Run Evaluation/Stop Evaluation on btn click
-- [x] Use interval object to keep Start/Stop button appearance consistent with eval state
-- [x] Change data drag & drop to textfield
-- [x] Add monitoring plots
-- [x] Fill in Runs tab
-- [x] Collect in Results the evaluation outputs of previous runs
-- [x] Allow user to select evaluation path and pythonpath in settings menu.
-- [x] Inform the user when EvalNE is not installed in the current env.
-- [x] For NC remove last row of the first div in Dashboard and precision@k values
-- [x] Make neighbourhood type disappear if networks are undirected
-- [x] Scores seems to lose its value when task is changed
-- [x] Fix Readme and documentation for this project. E.g. no installation needed
-- [x] Switch to production server instead of dev.
-- [x] Make the UI a pip installable package with evalne_gui as entry point
-- [x] Change package name to evalne_gui
-- [x] Fix evalne_gui proc monitoring
-- [x] Make EvalNE proc a class with start/stop/info
-- [x] For NR task remove all sampling related fields (3rd row in Global section)
-- [x] Make config files with relative paths work!
-- [x] Ensure stop eval actually stops the evaluation (can't guarantee process kill... python problem)
-- [x] Ensure that hiding elements in UI and logic in generating conf file are coherent
-- [x] Change the name of the conf file being saved to something else than conf.ini
-- [ ] Use pipes instead of a file to read/write onto the UI console e.g.
-https://codereview.stackexchange.com/questions/6567/redirecting-subprocesses-output-stdout-and-stderr-to-the-logging-module
-
-Other changes to EvalNE/EvalNE-GUI
-- [ ] The conf.ini values and descriptions in the conf.ini of evalne should be changed. 
-- [ ] Better variable names and fix description issues. For NC we should use the 'lp_model' as the binary classifier.
-- [ ] Add data visualization tab to EvalNE-GUI. Allows to visualize node/edge embeddings, eval parameters, 
-eval times, predictions for each node/edge, input graphs
- 
-Inspiration for the GUI: https://github.com/Jahaja/psdash and https://afaqurk.github.io/linux-dash/#/system-status
-
 ## About ##
 
 This repository contains the source code of the EvalNE-GUI, an open-source graphical user interface for EvalNE 
@@ -111,22 +68,35 @@ The EvalNE-GUI can be installed from pip or by cloning the GitHub repository:
 
 **Option 1:** Install the library using pip:
 ```bash
+# Ensure that setuptools is up to date using:
+pip3 install --upgrade setuptools
+
+# Install the library using pip:
 pip3 install evalne_gui
 ```
 
 **Option 2:** Cloning the repository and installing:
 ```bash
+# Clone the github repository
 git clone https://github.com/aida-ugent/evalne-gui
 cd EvalNE-gui
+
+# Ensure that setuptools is up to date using:
+pip3 install --upgrade setuptools
+
+# Install the library using setup.py
 python3 setup.py install
 ```
 
-To launch the GUI simply execute the `evalne-gui` script. Alternatively, the index.py file can be executed 
+To launch the GUI simply execute the `evalne-gui` script. Alternatively, the `__main__.py` file can be executed 
 using Python. A new browser tab will open showing the user interface.
 ```bash
 evalne_gui
-# Alternatively: python3 evalne_gui 
+# Alternatively: python3 evalne_gui/__main__.py 
 ```
+
+**NOTE:** If the GUI was installed in a virtualenv the launch script should be executed as 
+`venv/bin/evalne_gui`.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -195,12 +165,12 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 ## Citation ##
 
 If you have found EvaNE or the EvalNE-GUI useful in your research, please consider giving our repos a star 
-and citing our [arXiv paper](https://arxiv.org/abs/1901.09691):
+and citing our [paper](https://www.sciencedirect.com/science/article/pii/S2352711022000139):
 
 ```bibtex
     @article{MARA2022evalne,
       title = {EvalNE: A Framework for Network Embedding Evaluation},
-      author = {Alexandru Mara and Jefrey Lijffijt and Tijl {De Bie}},
+      author = {Alexandru Mara and Jefrey Lijffijt and Tijl De Bie},
       journal = {SoftwareX},
       volume = {17},
       pages = {},

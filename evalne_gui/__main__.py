@@ -31,7 +31,7 @@ def open_browser():
 
 def main():
     Timer(1, open_browser).start()
-    app.run_server(debug=True, port=8050, host='localhost', use_reloader=False)
+    app.run_server(debug=False, port=8050, host='localhost', use_reloader=False)
 
 
 if __name__ == '__main__':

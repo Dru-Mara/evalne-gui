@@ -33,9 +33,9 @@ setup(
     install_requires=[
         'numpy',
         'plotly',
-        'dash',
         'dash-daq',
         'dash_bootstrap_components',
+        'dash',
         'fa2',
         'psutil'
     ],
